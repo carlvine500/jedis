@@ -8,9 +8,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>jar</packaging>
 	<groupId>redis.clients</groupId>
-	<artifactId>jedis</artifactId>
-	<version>3.0.0.g-SNAPSHOT</version>
-	<name>Jedis</name>
+	<artifactId>jedis-g</artifactId>
+	<version>3.0.0-SNAPSHOT</version>
+	<name>Jedis-g</name>
 	<description>Jedis is a blazingly small and sane Redis java client.</description>
   <url>https://github.com/xetorthio/jedis</url>
 
@@ -59,15 +59,6 @@
 			<!-- <scope>test</scope> -->
 		</dependency>
 		
-		<!-- ================================================= -->
-		<!-- 日志及相关依赖（用slf4j+logback代替jcl+log4j） -->
-		<!-- ================================================= -->
-		<!-- <dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
-		</dependency> -->
-		<!-- 将现有的jakarta commons logging的调用转换成lsf4j的调用。 -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -78,7 +69,6 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.1.1</version>
 		</dependency>
-		<!-- slf4j的实现：logback，用来取代log4j。更快、更强！ -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>

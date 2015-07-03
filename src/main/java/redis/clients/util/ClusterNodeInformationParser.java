@@ -27,9 +27,9 @@ public class ClusterNodeInformationParser {
 
     String flagString = nodeInfoPartArray[2];
     Set<NodeFlag> nodeFlags = new HashSet<NodeFlag>();
-    if (flagString.equals("master")) {
+    if (flagString.contains("master")) {
       nodeFlags.add(NodeFlag.MASTER);
-    } else if (flagString.equals("slave")) {
+    } else if (flagString.contains("slave")) {
       nodeFlags.add(NodeFlag.SLAVE);
     }
     info.setFlags(nodeFlags);

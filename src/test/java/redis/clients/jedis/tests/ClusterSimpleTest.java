@@ -32,7 +32,7 @@ public class ClusterSimpleTest {
     final byte[][] bytes = new byte[][] { { 50 }, { 51 }, { 52 } };
     final byte[] bytes2 = new byte[5];
     // Thread.sleep(1000000000000L);
-    for (int i = 0; i < 100000000; i++) {
+    for (int i = 0; i < 100000; i++) {
       String string = jc.get("b");
       System.out.println(string);
     }

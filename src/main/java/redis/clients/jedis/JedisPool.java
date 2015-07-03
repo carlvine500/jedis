@@ -5,6 +5,7 @@ import java.net.URI;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.util.JedisURIHelper;
 
@@ -79,6 +80,13 @@ public class JedisPool extends JedisPoolAbstract {
     super(poolConfig, new JedisFactory(host, port, connectionTimeout, soTimeout, password,
         database, clientName));
   }
+  
+  public JedisPool(final GenericObjectPoolConfig poolConfig, final String host, int port,
+	      final int connectionTimeout, final int soTimeout, final String password, final int database,
+	      final String clientName,final Operation op) {
+	    super(poolConfig, new JedisFactory(host, port, connectionTimeout, soTimeout, password,
+	        database, clientName,op));
+	  }
 
   public JedisPool(final GenericObjectPoolConfig poolConfig, final URI uri) {
     this(poolConfig, uri, Protocol.DEFAULT_TIMEOUT);
