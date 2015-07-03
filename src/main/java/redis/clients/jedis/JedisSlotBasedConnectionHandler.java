@@ -55,13 +55,13 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
   }
 
   @Override
-  public Jedis getConnectionFromSlot(Operation op,int slot) {
+  public Jedis getConnectionFromSlot(Operation op, int slot) {
     JedisPool connectionPool = cache.getSlotPool(slot);
     // TODO read only
-	if (op == Operation.READONLY) {
-    	connectionPool = cache.getSlaveAtRandom(slot);
-    }else{
-    	connectionPool = cache.getMaster(slot);
+    if (op == Operation.READONLY) {
+      connectionPool = cache.getSlaveAtRandom(slot);
+    } else {
+      connectionPool = cache.getMaster(slot);
     }
     if (connectionPool != null) {
       // It can't guaranteed to get valid connection because of node

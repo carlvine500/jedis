@@ -22,22 +22,22 @@ public class ClusterNodeInformationParser {
       String[] slotInfoPartArray = extractSlotParts(nodeInfoPartArray);
       fillSlotInformation(slotInfoPartArray, info);
     }
-    
-    	info.setNodeId(nodeInfoPartArray[0]);
-    	
-		String flagString = nodeInfoPartArray[2];
-		Set<NodeFlag> nodeFlags = new HashSet<NodeFlag>();
-		if (flagString.equals("master")) {
-			nodeFlags.add(NodeFlag.MASTER);
-		}else if(flagString.equals("slave")){
-			nodeFlags.add(NodeFlag.SLAVE);
-		}
-		info.setFlags(nodeFlags);
-		
-		String slaveOf = nodeInfoPartArray[3];
-		if (!slaveOf.equals("-")) {
-			info.setSlaveOf(slaveOf);
-		}
+
+    info.setNodeId(nodeInfoPartArray[0]);
+
+    String flagString = nodeInfoPartArray[2];
+    Set<NodeFlag> nodeFlags = new HashSet<NodeFlag>();
+    if (flagString.equals("master")) {
+      nodeFlags.add(NodeFlag.MASTER);
+    } else if (flagString.equals("slave")) {
+      nodeFlags.add(NodeFlag.SLAVE);
+    }
+    info.setFlags(nodeFlags);
+
+    String slaveOf = nodeInfoPartArray[3];
+    if (!slaveOf.equals("-")) {
+      info.setSlaveOf(slaveOf);
+    }
 
     return info;
   }

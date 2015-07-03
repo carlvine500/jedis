@@ -46,37 +46,37 @@ public class ClusterNodeInformation {
   public List<Integer> getSlotsBeingMigrated() {
     return slotsBeingMigrated;
   }
-  
-	public enum NodeFlag {
-		NOFLAGS, MYSELF, SLAVE, MASTER, EVENTUAL_FAIL, FAIL, HANDSHAKE, NOADDR;
-	}
 
-	private String nodeId;
-	private String slaveOf;
-	private Set<NodeFlag> flags;
+  public enum NodeFlag {
+    NOFLAGS, MYSELF, SLAVE, MASTER, EVENTUAL_FAIL, FAIL, HANDSHAKE, NOADDR;
+  }
 
-	public String getNodeId() {
-		return nodeId;
-	}
+  private String nodeId;
+  private String slaveOf;
+  private Set<NodeFlag> flags;
 
-	public void setNodeId(String nodeId) {
-		this.nodeId = nodeId;
-	}
+  public String getNodeId() {
+    return nodeId;
+  }
 
-	public String getSlaveOf() {
-		return slaveOf;
-	}
+  public void setNodeId(String nodeId) {
+    this.nodeId = nodeId;
+  }
 
-	public void setSlaveOf(String slaveOf) {
-		this.slaveOf = slaveOf;
-	}
+  public String getSlaveOf() {
+    return slaveOf;
+  }
 
-	public Set<NodeFlag> getFlags() {
-		return flags;
-	}
+  public void setSlaveOf(String slaveOf) {
+    this.slaveOf = slaveOf;
+  }
 
-	public void setFlags(Set<NodeFlag> flags) {
-		this.flags = flags;
-	}
-	
+  public Set<NodeFlag> getFlags() {
+    return flags;
+  }
+
+  public void setFlags(Set<NodeFlag> flags) {
+    this.flags = flags;
+  }
+
 }

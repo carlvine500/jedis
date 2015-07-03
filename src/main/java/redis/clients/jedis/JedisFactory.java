@@ -33,16 +33,17 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     this.clientName = clientName;
     this.operation = Operation.READWRITE;
   }
-  
+
   public JedisFactory(final String host, final int port, final int connectionTimeout,
-	      final int soTimeout, final String password, final int database, final String clientName,final Operation op) {
-	    this.hostAndPort.set(new HostAndPort(host, port));
-	    this.connectionTimeout = connectionTimeout;
-	    this.soTimeout = soTimeout;
-	    this.password = password;
-	    this.database = database;
-	    this.clientName = clientName;
-		this.operation = op;
+      final int soTimeout, final String password, final int database, final String clientName,
+      final Operation op) {
+    this.hostAndPort.set(new HostAndPort(host, port));
+    this.connectionTimeout = connectionTimeout;
+    this.soTimeout = soTimeout;
+    this.password = password;
+    this.database = database;
+    this.clientName = clientName;
+    this.operation = op;
   }
 
   public JedisFactory(final URI uri, final int connectionTimeout, final int soTimeout,
@@ -107,8 +108,8 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     if (clientName != null) {
       jedis.clientSetname(clientName);
     }
-    if(operation == Operation.READONLY){
-    	jedis.readonly();
+    if (operation == Operation.READONLY) {
+      jedis.readonly();
     }
     return new DefaultPooledObject<Jedis>(jedis);
   }

@@ -12,7 +12,7 @@ public abstract class JedisClusterConnectionHandler {
 
   abstract Jedis getConnection();
 
-  abstract Jedis getConnectionFromSlot(Operation op,int slot);
+  abstract Jedis getConnectionFromSlot(Operation op, int slot);
 
   public Jedis getConnectionFromNode(HostAndPort node) {
     cache.setNodeIfNotExist(node);

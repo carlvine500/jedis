@@ -20,15 +20,16 @@ public abstract class JedisClusterCommand<T> {
     this.connectionHandler = connectionHandler;
     this.redirections = maxRedirections;
   }
-  
-	public enum Operation {
-		READONLY, READWRITE
-	}
-  
-  public JedisClusterCommand(Operation op,JedisClusterConnectionHandler connectionHandler, int maxRedirections) {
-	    this.connectionHandler = connectionHandler;
-	    this.redirections = maxRedirections;
-		this.op = op;
+
+  public enum Operation {
+    READONLY, READWRITE
+  }
+
+  public JedisClusterCommand(Operation op, JedisClusterConnectionHandler connectionHandler,
+      int maxRedirections) {
+    this.connectionHandler = connectionHandler;
+    this.redirections = maxRedirections;
+    this.op = op;
   }
 
   public abstract T execute(Jedis connection);
@@ -123,7 +124,7 @@ public abstract class JedisClusterCommand<T> {
         if (tryRandomNode) {
           connection = connectionHandler.getConnection();
         } else {
-		  connection = connectionHandler.getConnectionFromSlot(op,JedisClusterCRC16.getSlot(key));
+          connection = connectionHandler.getConnectionFromSlot(op, JedisClusterCRC16.getSlot(key));
         }
       }
 
