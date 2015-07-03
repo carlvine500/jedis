@@ -7,6 +7,7 @@ import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
+import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.jedis.exceptions.InvalidURIException;
 import redis.clients.util.JedisURIHelper;
 
@@ -20,6 +21,7 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
   private final String password;
   private final int database;
   private final String clientName;
+  private final Operation operation;
 
   public JedisFactory(final String host, final int port, final int connectionTimeout,
       final int soTimeout, final String password, final int database, final String clientName) {
@@ -29,6 +31,18 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     this.password = password;
     this.database = database;
     this.clientName = clientName;
+    this.operation = Operation.READWRITE;
+  }
+  
+  public JedisFactory(final String host, final int port, final int connectionTimeout,
+	      final int soTimeout, final String password, final int database, final String clientName,final Operation op) {
+	    this.hostAndPort.set(new HostAndPort(host, port));
+	    this.connectionTimeout = connectionTimeout;
+	    this.soTimeout = soTimeout;
+	    this.password = password;
+	    this.database = database;
+	    this.clientName = clientName;
+		this.operation = op;
   }
 
   public JedisFactory(final URI uri, final int connectionTimeout, final int soTimeout,
@@ -44,6 +58,7 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     this.password = JedisURIHelper.getPassword(uri);
     this.database = JedisURIHelper.getDBIndex(uri);
     this.clientName = clientName;
+    this.operation = Operation.READWRITE;
   }
 
   public void setHostAndPort(final HostAndPort hostAndPort) {
@@ -92,7 +107,9 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     if (clientName != null) {
       jedis.clientSetname(clientName);
     }
-
+    if(operation == Operation.READONLY){
+    	jedis.readonly();
+    }
     return new DefaultPooledObject<Jedis>(jedis);
   }
 

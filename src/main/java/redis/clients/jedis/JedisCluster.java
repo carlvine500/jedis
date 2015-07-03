@@ -1,6 +1,7 @@
 package redis.clients.jedis;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
+import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.util.KeyMergeUtil;
 
 import java.util.List;
@@ -69,7 +70,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String get(final String key) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.get(key);
@@ -79,7 +80,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Boolean exists(final String key) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.exists(key);
@@ -99,7 +100,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String type(final String key) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.type(key);
@@ -149,7 +150,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long ttl(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.ttl(key);
@@ -179,7 +180,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Boolean getbit(final String key, final long offset) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.getbit(key, offset);
@@ -199,7 +200,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String getrange(final String key, final long startOffset, final long endOffset) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.getrange(key, startOffset, endOffset);
@@ -299,7 +300,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String substr(final String key, final int start, final int end) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.substr(key, start, end);
@@ -319,7 +320,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String hget(final String key, final String field) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.hget(key, field);
@@ -349,7 +350,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> hmget(final String key, final String... fields) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.hmget(key, fields);
@@ -369,7 +371,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Boolean hexists(final String key, final String field) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.hexists(key, field);
@@ -389,7 +391,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long hlen(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.hlen(key);
@@ -399,7 +401,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> hkeys(final String key) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.hkeys(key);
@@ -409,7 +412,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> hvals(final String key) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.hvals(key);
@@ -419,7 +423,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Map<String, String> hgetAll(final String key) {
-    return new JedisClusterCommand<Map<String, String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Map<String, String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Map<String, String> execute(Jedis connection) {
         return connection.hgetAll(key);
@@ -449,7 +454,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long llen(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.llen(key);
@@ -459,7 +464,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> lrange(final String key, final long start, final long end) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.lrange(key, start, end);
@@ -479,7 +485,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String lindex(final String key, final long index) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.lindex(key, index);
@@ -539,7 +545,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> smembers(final String key) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.smembers(key);
@@ -579,7 +586,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long scard(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.scard(key);
@@ -589,7 +596,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Boolean sismember(final String key, final String member) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.sismember(key, member);
@@ -599,7 +606,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public String srandmember(final String key) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.srandmember(key);
@@ -609,7 +616,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> srandmember(final String key, final int count) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.srandmember(key, count);
@@ -619,7 +627,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long strlen(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.strlen(key);
@@ -649,7 +657,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrange(final String key, final long start, final long end) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrange(key, start, end);
@@ -679,7 +688,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zrank(final String key, final String member) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zrank(key, member);
@@ -689,7 +698,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zrevrank(final String key, final String member) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zrevrank(key, member);
@@ -699,7 +708,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrevrange(final String key, final long start, final long end) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrange(key, start, end);
@@ -709,7 +719,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<Tuple> zrangeWithScores(final String key, final long start, final long end) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeWithScores(key, start, end);
@@ -719,7 +730,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<Tuple> zrevrangeWithScores(final String key, final long start, final long end) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeWithScores(key, start, end);
@@ -729,7 +741,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zcard(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zcard(key);
@@ -739,7 +751,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Double zscore(final String key, final String member) {
-    return new JedisClusterCommand<Double>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Double>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Double execute(Jedis connection) {
         return connection.zscore(key, member);
@@ -749,7 +761,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> sort(final String key) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.sort(key);
@@ -759,7 +772,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> sort(final String key, final SortingParams sortingParameters) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.sort(key, sortingParameters);
@@ -769,7 +783,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zcount(final String key, final double min, final double max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zcount(key, min, max);
@@ -779,7 +793,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zcount(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zcount(key, min, max);
@@ -789,7 +803,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrangeByScore(final String key, final double min, final double max) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max);
@@ -799,7 +814,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrangeByScore(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max);
@@ -809,7 +825,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min);
@@ -820,7 +837,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<String> zrangeByScore(final String key, final double min, final double max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max, offset, count);
@@ -830,7 +848,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min);
@@ -841,7 +860,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<String> zrangeByScore(final String key, final String min, final String max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max, offset, count);
@@ -852,7 +872,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<String> zrevrangeByScore(final String key, final double max, final double min,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min, offset, count);
@@ -862,7 +883,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max);
@@ -872,7 +894,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min);
@@ -883,7 +906,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max, offset, count);
@@ -894,7 +918,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<String> zrevrangeByScore(final String key, final String max, final String min,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min, offset, count);
@@ -904,7 +929,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max);
@@ -914,7 +940,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min);
@@ -925,7 +952,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max, offset, count);
@@ -936,7 +964,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max,
       final double min, final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
@@ -947,7 +976,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max,
       final String min, final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
@@ -987,7 +1017,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zlexcount(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zlexcount(key, min, max);
@@ -997,7 +1027,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrangeByLex(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrangeByLex(key, min, max);
@@ -1008,7 +1039,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<String> zrangeByLex(final String key, final String min, final String max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrangeByLex(key, min, max, offset, count);
@@ -1018,7 +1050,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> zrevrangeByLex(final String key, final String max, final String min) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrangeByLex(key, max, min);
@@ -1029,7 +1062,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public Set<String> zrevrangeByLex(final String key, final String max, final String min,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.zrevrangeByLex(key, max, min, offset, count);
@@ -1039,7 +1073,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zremrangeByLex(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zremrangeByLex(key, min, max);
@@ -1091,7 +1125,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   @Override
   public String echo(final String string) {
     // note that it'll be run from arbitary node
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.echo(string);
@@ -1101,7 +1135,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long bitcount(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.bitcount(key);
@@ -1111,7 +1145,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long bitcount(final String key, final long start, final long end) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.bitcount(key, start, end);
@@ -1121,8 +1155,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public ScanResult<Entry<String, String>> hscan(final String key, final String cursor) {
-    return new JedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler,
-        maxRedirections) {
+    return new JedisClusterCommand<ScanResult<Entry<String, String>>>(Operation.READONLY,
+        connectionHandler, maxRedirections) {
       @Override
       public ScanResult<Entry<String, String>> execute(Jedis connection) {
         return connection.hscan(key, cursor);
@@ -1132,7 +1166,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public ScanResult<String> sscan(final String key, final String cursor) {
-    return new JedisClusterCommand<ScanResult<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<ScanResult<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public ScanResult<String> execute(Jedis connection) {
         return connection.sscan(key, cursor);
@@ -1142,7 +1177,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public ScanResult<Tuple> zscan(final String key, final String cursor) {
-    return new JedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<ScanResult<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public ScanResult<Tuple> execute(Jedis connection) {
         return connection.zscan(key, cursor);
@@ -1162,7 +1198,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public long pfcount(final String key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.pfcount(key);
@@ -1223,7 +1259,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public List<String> mget(final String... keys) {
-    return new JedisClusterCommand<List<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<String> execute(Jedis connection) {
         return connection.mget(keys);
@@ -1295,7 +1332,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> sdiff(final String... keys) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.sdiff(keys);
@@ -1307,7 +1345,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long sdiffstore(final String dstkey, final String... keys) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sdiffstore(dstkey, keys);
@@ -1317,7 +1355,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> sinter(final String... keys) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.sinter(keys);
@@ -1329,7 +1368,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long sinterstore(final String dstkey, final String... keys) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sinterstore(dstkey, keys);
@@ -1349,7 +1388,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long sort(final String key, final SortingParams sortingParameters, final String dstkey) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sort(key, sortingParameters, dstkey);
@@ -1359,7 +1398,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long sort(final String key, final String dstkey) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sort(key, dstkey);
@@ -1369,7 +1408,8 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Set<String> sunion(final String... keys) {
-    return new JedisClusterCommand<Set<String>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<String>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<String> execute(Jedis connection) {
         return connection.sunion(keys);
@@ -1381,7 +1421,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long sunionstore(final String dstkey, final String... keys) {
     String[] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sunionstore(dstkey, keys);
@@ -1393,7 +1433,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zinterstore(final String dstkey, final String... sets) {
     String[] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zinterstore(dstkey, sets);
@@ -1405,7 +1445,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zinterstore(final String dstkey, final ZParams params, final String... sets) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zinterstore(dstkey, params, sets);
@@ -1417,7 +1457,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zunionstore(final String dstkey, final String... sets) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zunionstore(dstkey, sets);
@@ -1429,7 +1469,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zunionstore(final String dstkey, final ZParams params, final String... sets) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zunionstore(dstkey, params, sets);
@@ -1505,7 +1545,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public long pfcount(final String... keys) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.pfcount(keys);

@@ -14,10 +14,21 @@ public abstract class JedisClusterCommand<T> {
   private JedisClusterConnectionHandler connectionHandler;
   private int redirections;
   private ThreadLocal<Jedis> askConnection = new ThreadLocal<Jedis>();
+  private Operation op = Operation.READWRITE;
 
   public JedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxRedirections) {
     this.connectionHandler = connectionHandler;
     this.redirections = maxRedirections;
+  }
+  
+	public enum Operation {
+		READONLY, READWRITE
+	}
+  
+  public JedisClusterCommand(Operation op,JedisClusterConnectionHandler connectionHandler, int maxRedirections) {
+	    this.connectionHandler = connectionHandler;
+	    this.redirections = maxRedirections;
+		this.op = op;
   }
 
   public abstract T execute(Jedis connection);
@@ -112,7 +123,7 @@ public abstract class JedisClusterCommand<T> {
         if (tryRandomNode) {
           connection = connectionHandler.getConnection();
         } else {
-          connection = connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));
+		  connection = connectionHandler.getConnectionFromSlot(op,JedisClusterCRC16.getSlot(key));
         }
       }
 
@@ -136,6 +147,7 @@ public abstract class JedisClusterCommand<T> {
 
       if (jre instanceof JedisAskDataException) {
         asking = true;
+        // migrating just occured in master
         askConnection.set(this.connectionHandler.getConnectionFromNode(jre.getTargetNode()));
       } else if (jre instanceof JedisMovedDataException) {
         // it rebuilds cluster's slot cache

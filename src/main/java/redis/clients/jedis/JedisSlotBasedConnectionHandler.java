@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandler {
@@ -54,12 +55,19 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
   }
 
   @Override
-  public Jedis getConnectionFromSlot(int slot) {
+  public Jedis getConnectionFromSlot(Operation op,int slot) {
     JedisPool connectionPool = cache.getSlotPool(slot);
+    // TODO read only
+	if (op == Operation.READONLY) {
+    	connectionPool = cache.getSlaveAtRandom(slot);
+    }else{
+    	connectionPool = cache.getMaster(slot);
+    }
     if (connectionPool != null) {
       // It can't guaranteed to get valid connection because of node
       // assignment
-      return connectionPool.getResource();
+      Jedis resource = connectionPool.getResource();
+      return resource;
     } else {
       return getConnection();
     }

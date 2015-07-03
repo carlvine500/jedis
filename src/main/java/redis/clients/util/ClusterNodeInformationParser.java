@@ -1,6 +1,10 @@
 package redis.clients.util;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import redis.clients.jedis.HostAndPort;
+import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
 public class ClusterNodeInformationParser {
   private static final String SLOT_IMPORT_IDENTIFIER = "-<-";
@@ -18,6 +22,22 @@ public class ClusterNodeInformationParser {
       String[] slotInfoPartArray = extractSlotParts(nodeInfoPartArray);
       fillSlotInformation(slotInfoPartArray, info);
     }
+    
+    	info.setNodeId(nodeInfoPartArray[0]);
+    	
+		String flagString = nodeInfoPartArray[2];
+		Set<NodeFlag> nodeFlags = new HashSet<NodeFlag>();
+		if (flagString.equals("master")) {
+			nodeFlags.add(NodeFlag.MASTER);
+		}else if(flagString.equals("slave")){
+			nodeFlags.add(NodeFlag.SLAVE);
+		}
+		info.setFlags(nodeFlags);
+		
+		String slaveOf = nodeInfoPartArray[3];
+		if (!slaveOf.equals("-")) {
+			info.setSlaveOf(slaveOf);
+		}
 
     return info;
   }
