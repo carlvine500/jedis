@@ -340,7 +340,7 @@ public class JedisClusterInfoCache {
   }
 
   private int masterReadWeight = 1;
-  private int slaveReadWeight = 1;
+  private int slaveReadWeight = 0;
 
   public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
     if ((masterReadWeight + slaveReadWeight) == 0//
