@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
@@ -13,17 +13,16 @@ import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.util.ClusterNodeInformation;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
 import redis.clients.util.ClusterNodeInformationParser;
-import redis.clients.util.SafeEncoder;
 
 public class JedisClusterInfoCache {
   public static final ClusterNodeInformationParser nodeInfoParser = new ClusterNodeInformationParser();
 
-  private Map<String, JedisPool> nodes = new HashMap<String, JedisPool>();
-  private Map<Integer, JedisPool> slots = new HashMap<Integer, JedisPool>();
+  private static final ConcurrentHashMap<String, JedisPool> nodes = new ConcurrentHashMap<String, JedisPool>();
+  // private Map<Integer, JedisPool> slots = new HashMap<Integer, JedisPool>();
 
-  private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-  private final Lock r = rwl.readLock();
-  private final Lock w = rwl.writeLock();
+  // private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+  // private final Lock r = rwl.readLock();
+  // private final Lock w = rwl.writeLock();
   private final GenericObjectPoolConfig poolConfig;
 
   private int connectionTimeout;
@@ -40,143 +39,143 @@ public class JedisClusterInfoCache {
     this.soTimeout = soTimeout;
   }
 
-  public void discoverClusterNodesAndSlots(Jedis jedis) {
-    reloadSlotShardings(jedis);
-    w.lock();
+  // public void discoverClusterNodesAndSlots(Jedis jedis) {
+  // w.lock();
+  //
+  // try {
+  // this.nodes.clear();
+  // this.slots.clear();
+  //
+  // String localNodes = jedis.clusterNodes();
+  // for (String nodeInfo : localNodes.split("\n")) {
+  // ClusterNodeInformation clusterNodeInfo = nodeInfoParser.parse(nodeInfo, new HostAndPort(
+  // jedis.getClient().getHost(), jedis.getClient().getPort()));
+  //
+  // HostAndPort targetNode = clusterNodeInfo.getNode();
+  // setNodeIfNotExist(targetNode);
+  // assignSlotsToNode(clusterNodeInfo.getAvailableSlots(), targetNode);
+  // }
+  // } finally {
+  // w.unlock();
+  // }
+  // }
 
-    try {
-      this.nodes.clear();
-      this.slots.clear();
+  // public void discoverClusterSlots(Jedis jedis) {
+  // w.lock();
+  //
+  // try {
+  // this.slots.clear();
+  //
+  // List<Object> slots = jedis.clusterSlots();
+  //
+  // for (Object slotInfoObj : slots) {
+  // List<Object> slotInfo = (List<Object>) slotInfoObj;
+  //
+  // if (slotInfo.size() <= 2) {
+  // continue;
+  // }
+  //
+  // List<Integer> slotNums = getAssignedSlotArray(slotInfo);
+  //
+  // // hostInfos
+  // List<Object> hostInfos = (List<Object>) slotInfo.get(2);
+  // if (hostInfos.size() <= 0) {
+  // continue;
+  // }
+  //
+  // // at this time, we just use master, discard slave information
+  // HostAndPort targetNode = generateHostAndPort(hostInfos);
+  //
+  // setNodeIfNotExist(targetNode);
+  // assignSlotsToNode(slotNums, targetNode);
+  // }
+  // } finally {
+  // w.unlock();
+  // }
+  // }
 
-      String localNodes = jedis.clusterNodes();
-      for (String nodeInfo : localNodes.split("\n")) {
-        ClusterNodeInformation clusterNodeInfo = nodeInfoParser.parse(nodeInfo, new HostAndPort(
-            jedis.getClient().getHost(), jedis.getClient().getPort()));
-
-        HostAndPort targetNode = clusterNodeInfo.getNode();
-        setNodeIfNotExist(targetNode);
-        assignSlotsToNode(clusterNodeInfo.getAvailableSlots(), targetNode);
-      }
-    } finally {
-      w.unlock();
-    }
-  }
-
-  public void discoverClusterSlots(Jedis jedis) {
-    w.lock();
-
-    try {
-      this.slots.clear();
-
-      List<Object> slots = jedis.clusterSlots();
-
-      for (Object slotInfoObj : slots) {
-        List<Object> slotInfo = (List<Object>) slotInfoObj;
-
-        if (slotInfo.size() <= 2) {
-          continue;
-        }
-
-        List<Integer> slotNums = getAssignedSlotArray(slotInfo);
-
-        // hostInfos
-        List<Object> hostInfos = (List<Object>) slotInfo.get(2);
-        if (hostInfos.size() <= 0) {
-          continue;
-        }
-
-        // at this time, we just use master, discard slave information
-        HostAndPort targetNode = generateHostAndPort(hostInfos);
-
-        setNodeIfNotExist(targetNode);
-        assignSlotsToNode(slotNums, targetNode);
-      }
-    } finally {
-      w.unlock();
-    }
-  }
-
-  private HostAndPort generateHostAndPort(List<Object> hostInfos) {
-    return new HostAndPort(SafeEncoder.encode((byte[]) hostInfos.get(0)),
-        ((Long) hostInfos.get(1)).intValue());
-  }
+  // private HostAndPort generateHostAndPort(List<Object> hostInfos) {
+  // return new HostAndPort(SafeEncoder.encode((byte[]) hostInfos.get(0)),
+  // ((Long) hostInfos.get(1)).intValue());
+  // }
 
   public void setNodeIfNotExist(HostAndPort node) {
     setNodeIfNotExist(node, Operation.READWRITE);
   }
 
   private void setNodeIfNotExist(HostAndPort node, Operation op) {
-    w.lock();
-    try {
-      String nodeKey = getNodeKey(node);
-      if (nodes.containsKey(nodeKey)) return;
+    // w.lock();
+    // try {
+    String nodeKey = getNodeKey(node);
+    if (nodes.containsKey(nodeKey)) return;
 
-      JedisPool nodePool = new JedisPool(poolConfig, node.getHost(), node.getPort(),
-          connectionTimeout, soTimeout, null, 0, null, op);
-      nodes.put(nodeKey, nodePool);
-    } finally {
-      w.unlock();
-    }
+    JedisPool nodePool = new JedisPool(poolConfig, node.getHost(), node.getPort(),
+        connectionTimeout, soTimeout, null, 0, null, op);
+    nodes.put(nodeKey, nodePool);
+    // } finally {
+    // w.unlock();
+    // }
   }
 
-  private void assignSlotToNode(int slot, HostAndPort targetNode) {
-    w.lock();
-    try {
-      JedisPool targetPool = nodes.get(getNodeKey(targetNode));
+  // private void assignSlotToNode(int slot, HostAndPort targetNode) {
+  // w.lock();
+  // try {
+  // JedisPool targetPool = nodes.get(getNodeKey(targetNode));
+  //
+  // if (targetPool == null) {
+  // setNodeIfNotExist(targetNode);
+  // targetPool = nodes.get(getNodeKey(targetNode));
+  // }
+  // slots.put(slot, targetPool);
+  // } finally {
+  // w.unlock();
+  // }
+  // }
 
-      if (targetPool == null) {
-        setNodeIfNotExist(targetNode);
-        targetPool = nodes.get(getNodeKey(targetNode));
-      }
-      slots.put(slot, targetPool);
-    } finally {
-      w.unlock();
-    }
-  }
-
-  private void assignSlotsToNode(List<Integer> targetSlots, HostAndPort targetNode) {
-    w.lock();
-    try {
-      JedisPool targetPool = nodes.get(getNodeKey(targetNode));
-
-      if (targetPool == null) {
-        setNodeIfNotExist(targetNode);
-        targetPool = nodes.get(getNodeKey(targetNode));
-      }
-
-      for (Integer slot : targetSlots) {
-        slots.put(slot, targetPool);
-      }
-    } finally {
-      w.unlock();
-    }
-  }
+  // private void assignSlotsToNode(List<Integer> targetSlots, HostAndPort targetNode) {
+  // w.lock();
+  // try {
+  // JedisPool targetPool = nodes.get(getNodeKey(targetNode));
+  //
+  // if (targetPool == null) {
+  // setNodeIfNotExist(targetNode);
+  // targetPool = nodes.get(getNodeKey(targetNode));
+  // }
+  //
+  // for (Integer slot : targetSlots) {
+  // slots.put(slot, targetPool);
+  // }
+  // } finally {
+  // w.unlock();
+  // }
+  // }
 
   public JedisPool getNode(String nodeKey) {
-    r.lock();
-    try {
-      return nodes.get(nodeKey);
-    } finally {
-      r.unlock();
-    }
+    // r.lock();
+    // try {
+    return nodes.get(nodeKey);
+    // } finally {
+    // r.unlock();
+    // }
   }
 
-  public JedisPool getSlotPool(int slot) {
-    r.lock();
-    try {
-      return slots.get(slot);
-    } finally {
-      r.unlock();
-    }
-  }
-
+  //
+  // public JedisPool getSlotPool(int slot) {
+  // r.lock();
+  // try {
+  // return slots.get(slot);
+  // } finally {
+  // r.unlock();
+  // }
+  // }
+  //
   public Map<String, JedisPool> getNodes() {
-    r.lock();
-    try {
-      return new HashMap<String, JedisPool>(nodes);
-    } finally {
-      r.unlock();
-    }
+    // r.lock();
+    // try {
+    return nodes;
+    // } finally {
+    // r.unlock();
+    // }
   }
 
   public static String getNodeKey(HostAndPort hnp) {
@@ -191,14 +190,14 @@ public class JedisClusterInfoCache {
     return getNodeKey(jedis.getClient());
   }
 
-  private List<Integer> getAssignedSlotArray(List<Object> slotInfo) {
-    List<Integer> slotNums = new ArrayList<Integer>();
-    for (int slot = ((Long) slotInfo.get(0)).intValue(); slot <= ((Long) slotInfo.get(1))
-        .intValue(); slot++) {
-      slotNums.add(slot);
-    }
-    return slotNums;
-  }
+  // private List<Integer> getAssignedSlotArray(List<Object> slotInfo) {
+  // List<Integer> slotNums = new ArrayList<Integer>();
+  // for (int slot = ((Long) slotInfo.get(0)).intValue(); slot <= ((Long) slotInfo.get(1))
+  // .intValue(); slot++) {
+  // slotNums.add(slot);
+  // }
+  // return slotNums;
+  // }
 
   private volatile Map<Integer, Sharding> slotShardings;
 
@@ -271,14 +270,32 @@ public class JedisClusterInfoCache {
     if (list.isEmpty()) {
       return getMaster(slot);
     }
-    if (slotShardings.get(slot).isMoving()) {
+    if (slotShardings.get(slot).isMigratingImporting()) {
       return getMaster(slot);
     }
-    return list.get(randomNumber(list.size()));
+    JedisPool jedisPool = list.get(randomNumber(list.size()));
+    if (jedisPool.isClosed()) {
+      list.remove(jedisPool);
+      getMasterOrSlaveAtRandom(slot);
+    }
+    return jedisPool;
   }
 
+  // private JedisPool getActiveJedisPool(List<JedisPool> list) {
+  // JedisPool jedisPool = list.get(randomNumber(list.size()));
+  // if (jedisPool.isClosed()) {
+  // list.remove(jedisPool);
+  // return list.get(randomNumber(list.size()));
+  // }
+  // return list.get(randomNumber(list.size()));
+  // }
+
   public JedisPool getMasterOrSlaveAtRandom(int slot) {
-    List<JedisPool> list = slotShardings.get(slot).slaves;
+    Sharding sharding = slotShardings.get(slot);
+    if (sharding.isMigratingImporting()) {
+      return getMaster(slot);
+    }
+    List<JedisPool> list = sharding.slaves;
     if (list.isEmpty()) {
       return getMaster(slot);
     }
@@ -287,15 +304,60 @@ public class JedisClusterInfoCache {
     if (index == list.size()) {
       return getMaster(slot);
     }
-    if (slotShardings.get(slot).isMoving()) {
-      return getMaster(slot);
+    JedisPool jedisPool = list.get(randomNumber(list.size()));
+    if (jedisPool.isClosed()) {
+      list.remove(jedisPool);
+      getMasterOrSlaveAtRandom(slot);
     }
-    return list.get(index);
+    return jedisPool;
   }
+
+  public JedisPool getMasterOrSlaveByWeight(int slot) {
+    Sharding sharding = slotShardings.get(slot);
+    if (sharding.isMigratingImporting()) {
+      return sharding.getMaster();
+    }
+    return getReadJedisPool(sharding);
+  }
+
+  public JedisPool getReadJedisPool(Sharding sharding) {
+    List<JedisPool> list = sharding.slaves;
+    if (list.isEmpty()) {
+      return sharding.getMaster();
+    }
+    int size = list.size();
+    int index = randomNumber(masterReadWeight + slaveReadWeight * size);
+    // System.out.println(index);
+    if (index < masterReadWeight) {
+      return sharding.getMaster();
+    }
+    JedisPool jedisPool = list.get((index - masterReadWeight) / slaveReadWeight);
+    if (jedisPool.isClosed()) {
+      list.remove(jedisPool);
+      return getReadJedisPool(sharding);
+    }
+    return jedisPool;
+  }
+
+  private int masterReadWeight = 1;
+  private int slaveReadWeight = 1;
+
+  public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
+    if ((masterReadWeight + slaveReadWeight) == 0//
+        || masterReadWeight < 0//
+        || slaveReadWeight < 0) {
+      throw new IllegalArgumentException("masterReadWeight slaveReadWeight set error");
+    }
+    this.masterReadWeight = masterReadWeight;
+    this.slaveReadWeight = slaveReadWeight;
+  }
+
+  // private final static Random random = new Random();
 
   private static int randomNumber(int size) {
     // random reference: http://www.oschina.net/question/157182_45274
     return (int) (Math.floor(Math.random() * size));
+    // return random.nextInt(size);
   }
 
   private ClusterNodeInformation findMasterByNodeId(List<ClusterNodeInformation> nodeInfos,
@@ -308,12 +370,20 @@ public class JedisClusterInfoCache {
     return null;
   }
 
+  public void updateSlotState(int slot, SlotState slotState) {
+    slotShardings.get(slot).setSlotState(slotState);
+  }
+
+  public void closeSlave(String nodeKey) {
+    nodes.get(nodeKey).close();
+  }
+
   public static class Sharding {
     private JedisPool master;
-    private List<JedisPool> slaves = new ArrayList<JedisPool>(2);
+    private List<JedisPool> slaves = new CopyOnWriteArrayList<JedisPool>();
     private volatile SlotState slotState = SlotState.STABLE;
 
-    public boolean isMoving() {
+    public boolean isMigratingImporting() {
       return slotState != SlotState.STABLE;
     }
 

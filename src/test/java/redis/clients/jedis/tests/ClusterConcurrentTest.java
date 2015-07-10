@@ -35,8 +35,8 @@ public class ClusterConcurrentTest {
     StressTestUtils.testAndPrint(400, 100 * 10000, new StressTask() {
       @Override
       public Object doTask() throws Exception {
-        byte[] bs = jc.get(bytes[i.incrementAndGet() % 3]);
-        // byte[] bs = jc.get(bytes2);
+        // byte[] bs = jc.get(bytes[i.incrementAndGet() % 3]);
+        String bs = jc.get("b");
         return null;
       }
     });

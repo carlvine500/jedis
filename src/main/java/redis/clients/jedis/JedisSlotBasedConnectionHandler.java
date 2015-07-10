@@ -56,10 +56,11 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
 
   @Override
   public Jedis getConnectionFromSlot(Operation op, int slot) {
-    JedisPool connectionPool = cache.getSlotPool(slot);
+    // JedisPool connectionPool = cache.getSlotPool(slot);
+    JedisPool connectionPool = null;
     // TODO read only
     if (op == Operation.READONLY) {
-      connectionPool = cache.getSlaveAtRandom(slot);
+      connectionPool = cache.getMasterOrSlaveByWeight(slot);
     } else {
       connectionPool = cache.getMaster(slot);
     }

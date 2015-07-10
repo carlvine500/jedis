@@ -23,6 +23,10 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   protected JedisClusterConnectionHandler connectionHandler;
 
+  public JedisClusterConnectionHandler getConnectionHandler() {
+    return connectionHandler;
+  }
+
   public BinaryJedisCluster(Set<HostAndPort> nodes, int timeout) {
     this(nodes, timeout, DEFAULT_MAX_REDIRECTIONS, new GenericObjectPoolConfig());
   }

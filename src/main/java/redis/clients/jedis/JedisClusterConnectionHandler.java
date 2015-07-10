@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
+import redis.clients.jedis.JedisClusterInfoCache.SlotState;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public abstract class JedisClusterConnectionHandler {
@@ -34,7 +35,8 @@ public abstract class JedisClusterConnectionHandler {
     for (HostAndPort hostAndPort : startNodes) {
       Jedis jedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
       try {
-        cache.discoverClusterNodesAndSlots(jedis);
+        // cache.discoverClusterNodesAndSlots(jedis);
+        cache.reloadSlotShardings(jedis);
         break;
       } catch (JedisConnectionException e) {
         // try next nodes
@@ -55,7 +57,8 @@ public abstract class JedisClusterConnectionHandler {
       Jedis jedis = null;
       try {
         jedis = jp.getResource();
-        cache.discoverClusterSlots(jedis);
+        // cache.discoverClusterSlots(jedis);
+        cache.reloadSlotShardings(jedis);
         break;
       } catch (JedisConnectionException e) {
         // try next nodes
@@ -65,6 +68,18 @@ public abstract class JedisClusterConnectionHandler {
         }
       }
     }
+  }
+
+  public void updateSlotState(int slot, SlotState slotState) {
+    cache.updateSlotState(slot, slotState);
+  }
+
+  public void closeSlave(String nodeKey) {
+    cache.closeSlave(nodeKey);
+  }
+
+  public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
+    cache.setReadWeight(masterReadWeight, slaveReadWeight);
   }
 
 }
