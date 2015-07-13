@@ -1,5 +1,6 @@
 package redis.clients.jedis;
 
+import redis.clients.jedis.JedisClusterInfoCache.SlotState;
 import redis.clients.util.KeyMergeUtil;
 import redis.clients.util.SafeEncoder;
 
@@ -22,10 +23,6 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   protected int maxRedirections;
 
   protected JedisClusterConnectionHandler connectionHandler;
-
-  public JedisClusterConnectionHandler getConnectionHandler() {
-    return connectionHandler;
-  }
 
   public BinaryJedisCluster(Set<HostAndPort> nodes, int timeout) {
     this(nodes, timeout, DEFAULT_MAX_REDIRECTIONS, new GenericObjectPoolConfig());
@@ -66,6 +63,18 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   public Map<String, JedisPool> getClusterNodes() {
     return connectionHandler.getNodes();
+  }
+
+  public void setSlotState(int slot, SlotState slotState) {
+    connectionHandler.setSlotState(slot, slotState);
+  }
+
+  public void closeSlaveConnection(String nodeKey) {
+    connectionHandler.closeSlaveConnection(nodeKey);
+  }
+
+  public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
+    connectionHandler.setReadWeight(masterReadWeight, slaveReadWeight);
   }
 
   @Override

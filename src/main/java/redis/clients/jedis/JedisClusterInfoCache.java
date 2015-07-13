@@ -370,11 +370,11 @@ public class JedisClusterInfoCache {
     return null;
   }
 
-  public void updateSlotState(int slot, SlotState slotState) {
+  public void setSlotState(int slot, SlotState slotState) {
     slotShardings.get(slot).setSlotState(slotState);
   }
 
-  public void closeSlave(String nodeKey) {
+  public void closeSlaveConnection(String nodeKey) {
     nodes.get(nodeKey).close();
   }
 
