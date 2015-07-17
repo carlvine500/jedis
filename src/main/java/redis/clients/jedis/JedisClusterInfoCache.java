@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
@@ -107,7 +108,13 @@ public class JedisClusterInfoCache {
     // w.lock();
     // try {
     String nodeKey = getNodeKey(node);
-    if (nodes.containsKey(nodeKey)) return;
+    if (nodes.containsKey(nodeKey)) {
+    	JedisFactory jf = (JedisFactory)nodes.get(nodeKey).getInternalPool().getFactory();
+	    // when M/S switch , slaves need to be readonly mode;
+		if (jf.getOperation() == op) {
+    		return;
+    	}
+    }
 
     JedisPool nodePool = new JedisPool(poolConfig, node.getHost(), node.getPort(),
         connectionTimeout, soTimeout, null, 0, null, op);
