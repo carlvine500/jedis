@@ -224,6 +224,9 @@ public class JedisClusterInfoCache {
     List<ClusterNodeInformation> nodeInfos = new ArrayList<ClusterNodeInformation>();
     for (String nodeInfo : clusterNodes.split("\n")) {
       ClusterNodeInformation clusterNodeInfo = nodeInfoParser.parse(nodeInfo, current);
+      if (clusterNodeInfo.isDead()) {
+        continue;
+      }
       nodeInfos.add(clusterNodeInfo);
       Operation op = null;
       if (clusterNodeInfo.getFlags().contains(NodeFlag.SLAVE)) {

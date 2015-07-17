@@ -1,7 +1,10 @@
 package redis.clients.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import redis.clients.jedis.HostAndPort;
@@ -48,7 +51,36 @@ public class ClusterNodeInformation {
   }
 
   public enum NodeFlag {
-    NOFLAGS, MYSELF, SLAVE, MASTER, EVENTUAL_FAIL, FAIL, HANDSHAKE, NOADDR;
+    NOFLAGS("noflags"), MYSELF("myself"), SLAVE("slave"), MASTER("master") //
+    , EVENTUAL_FAIL("fail?"), FAIL("fail"), HANDSHAKE("handshake"), NOADDR("noaddr");
+    private static final Map<String, NodeFlag> strNodeFlag = new HashMap<String, NodeFlag>();
+    static {
+      for (NodeFlag nodeFlag : NodeFlag.values()) {
+        strNodeFlag.put(nodeFlag.getNodeFlagString(), nodeFlag);
+      }
+    }
+
+    private NodeFlag() {
+    }
+
+    private String nodeFlagString;
+
+    private NodeFlag(String nodeFlagString) {
+      this.nodeFlagString = nodeFlagString;
+    }
+
+    public String getNodeFlagString() {
+      return nodeFlagString;
+    }
+
+    public static Set<NodeFlag> parse(String nodeFlagsStr) {
+      Set<NodeFlag> set = new HashSet<ClusterNodeInformation.NodeFlag>();
+      String[] flags = nodeFlagsStr.split(",");
+      for (String flag : flags) {
+        set.add(strNodeFlag.get(flag));
+      }
+      return set;
+    }
   }
 
   private String nodeId;
@@ -77,6 +109,17 @@ public class ClusterNodeInformation {
 
   public void setFlags(Set<NodeFlag> flags) {
     this.flags = flags;
+  }
+
+  public boolean isDead() {
+    return flags.contains(NodeFlag.EVENTUAL_FAIL) //
+        || flags.contains(NodeFlag.FAIL) //
+        || flags.contains(NodeFlag.HANDSHAKE) //
+        || flags.contains(NodeFlag.NOADDR);
+  }
+
+  public boolean isAlive() {
+    return !isDead();
   }
 
 }

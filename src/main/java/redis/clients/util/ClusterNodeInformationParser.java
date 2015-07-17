@@ -1,8 +1,5 @@
 package redis.clients.util;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import redis.clients.jedis.HostAndPort;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
@@ -26,13 +23,7 @@ public class ClusterNodeInformationParser {
     info.setNodeId(nodeInfoPartArray[0]);
 
     String flagString = nodeInfoPartArray[2];
-    Set<NodeFlag> nodeFlags = new HashSet<NodeFlag>();
-    if (flagString.contains("master")) {
-      nodeFlags.add(NodeFlag.MASTER);
-    } else if (flagString.contains("slave")) {
-      nodeFlags.add(NodeFlag.SLAVE);
-    }
-    info.setFlags(nodeFlags);
+    info.setFlags(NodeFlag.parse(flagString));
 
     String slaveOf = nodeInfoPartArray[3];
     if (!slaveOf.equals("-")) {
