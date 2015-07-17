@@ -109,11 +109,11 @@ public class JedisClusterInfoCache {
     // try {
     String nodeKey = getNodeKey(node);
     if (nodes.containsKey(nodeKey)) {
-    	JedisFactory jf = (JedisFactory)nodes.get(nodeKey).getInternalPool().getFactory();
-	    // when M/S switch , slaves need to be readonly mode;
-		if (jf.getOperation() == op) {
-    		return;
-    	}
+      JedisFactory jf = (JedisFactory) nodes.get(nodeKey).getInternalPool().getFactory();
+      // when M/S switch , slaves need to be readonly mode;
+      if (jf.getOperation() == op) {
+        return;
+      }
     }
 
     JedisPool nodePool = new JedisPool(poolConfig, node.getHost(), node.getPort(),
