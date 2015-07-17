@@ -51,6 +51,12 @@ public class ClusterNodeInformationParser {
     return slotInfoPartArray;
   }
 
+	/**
+	 * be care, sometimes the output likes this:
+	 * 
+	 * fd80d1696a8af7c6148db3a824dadbb09622227a :8000 myself,master - 0 0 0
+	 * connected 0-16300
+	 */
   public HostAndPort getHostAndPortFromNodeLine(String[] nodeInfoPartArray, HostAndPort current) {
     String stringHostAndPort = nodeInfoPartArray[HOST_AND_PORT_INDEX];
 
