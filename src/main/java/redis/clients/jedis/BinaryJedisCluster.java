@@ -1327,7 +1327,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
       public List<byte[]> execute(Jedis connection) {
         return connection.mget(keys);
       }
-    }.runBinary(keys.length - 1, keys);
+    }.runBinary(keys.length, keys);
   }
 
   @Override
