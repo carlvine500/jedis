@@ -118,7 +118,9 @@ public class JedisClusterInfoCache {
 
     JedisPool nodePool = new JedisPool(poolConfig, node.getHost(), node.getPort(),
         connectionTimeout, soTimeout, null, 0, null, op);
+    JedisPool oldJedisPool = nodes.get(nodeKey);
     nodes.put(nodeKey, nodePool);
+    oldJedisPool.close();
     // } finally {
     // w.unlock();
     // }
