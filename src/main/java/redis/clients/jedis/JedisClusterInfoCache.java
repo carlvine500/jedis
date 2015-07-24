@@ -120,7 +120,10 @@ public class JedisClusterInfoCache {
         connectionTimeout, soTimeout, null, 0, null, op);
     JedisPool oldJedisPool = nodes.get(nodeKey);
     nodes.put(nodeKey, nodePool);
-    oldJedisPool.close();
+    if (oldJedisPool != null) {
+      oldJedisPool.close();
+    }
+
     // } finally {
     // w.unlock();
     // }

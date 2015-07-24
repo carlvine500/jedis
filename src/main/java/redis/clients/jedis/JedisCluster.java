@@ -1642,4 +1642,14 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       }
     }.run(key);
   }
+
+  public Pipeline pipelined(final String key) {
+    return new JedisClusterCommand<Pipeline>(connectionHandler, maxRedirections) {
+      @Override
+      public Pipeline execute(Jedis connection) {
+        return connection.pipelined();
+      }
+    }.run(key);
+  }
+
 }
