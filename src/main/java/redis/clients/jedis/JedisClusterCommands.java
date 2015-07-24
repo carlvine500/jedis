@@ -232,5 +232,9 @@ public interface JedisClusterCommands {
   Long pfadd(final String key, final String... elements);
 
   long pfcount(final String key);
+  
+  Pipeline pipelined(String key);
+
+  Long pttl(String key);
 
 }
