@@ -225,4 +225,8 @@ public interface BinaryJedisClusterCommands {
   Long pfadd(final byte[] key, final byte[]... elements);
 
   long pfcount(final byte[] key);
+
+  byte[] dump(final byte[] key);
+
+  String restore(final byte[] key, final int ttl, final byte[] serializedValue);
 }
