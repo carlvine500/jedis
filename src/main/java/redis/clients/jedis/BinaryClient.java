@@ -1074,7 +1074,7 @@ public class BinaryClient extends Connection {
     sendCommand(DUMP, key);
   }
 
-  public void restore(final byte[] key, final int ttl, final byte[] serializedValue) {
+  public void restore(final byte[] key, final long ttl, final byte[] serializedValue) {
     sendCommand(RESTORE, key, toByteArray(ttl), serializedValue);
   }
 

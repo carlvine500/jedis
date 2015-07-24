@@ -228,5 +228,5 @@ public interface BinaryJedisClusterCommands {
 
   byte[] dump(final byte[] key);
 
-  String restore(final byte[] key, final int ttl, final byte[] serializedValue);
+  String restore(final byte[] key, final long ttl, final byte[] serializedValue);
 }

@@ -1623,7 +1623,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   }
 
   @Override
-  public String restore(final byte[] key, final int ttl, final byte[] serializedValue) {
+  public String restore(final byte[] key, final long ttl, final byte[] serializedValue) {
     return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
