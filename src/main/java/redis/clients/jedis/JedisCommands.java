@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.params.set.SetParams;
+
 /**
  * Common interface for sharded and non-sharded Jedis
  */
 public interface JedisCommands {
   String set(String key, String value);
 
-  String set(String key, String value, String nxxx, String expx, long time);
+  String set(String key, String value, SetParams params);
 
   String get(String key);
 
@@ -30,6 +32,8 @@ public interface JedisCommands {
 
   Long ttl(String key);
 
+  Long pttl(final String key);
+
   Boolean setbit(String key, long offset, boolean value);
 
   Boolean setbit(String key, long offset, String value);
@@ -45,6 +49,8 @@ public interface JedisCommands {
   Long setnx(String key, String value);
 
   String setex(String key, int seconds, String value);
+
+  String psetex(final String key, final long milliseconds, final String value);
 
   Long decrBy(String key, long integer);
 
@@ -71,6 +77,8 @@ public interface JedisCommands {
   List<String> hmget(String key, String... fields);
 
   Long hincrBy(String key, String field, long value);
+
+  Double hincrByFloat(final String key, final String field, final double value);
 
   Boolean hexists(String key, String field);
 
@@ -228,11 +236,22 @@ public interface JedisCommands {
 
   Long bitcount(final String key, long start, long end);
 
+  Long bitpos(final String key, final boolean value);
+
+  Long bitpos(final String key, final boolean value, final BitPosParams params);
+
   ScanResult<Map.Entry<String, String>> hscan(final String key, final String cursor);
+
+  ScanResult<Map.Entry<String, String>> hscan(final String key, final String cursor,
+      final ScanParams params);
 
   ScanResult<String> sscan(final String key, final String cursor);
 
   ScanResult<Tuple> zscan(final String key, final String cursor);
+
+  ScanResult<Tuple> zscan(final String key, final String cursor, final ScanParams params);
+
+  ScanResult<String> sscan(final String key, final String cursor, final ScanParams params);
 
   Long pfadd(final String key, final String... elements);
 

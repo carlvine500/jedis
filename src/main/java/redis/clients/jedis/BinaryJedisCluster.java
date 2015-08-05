@@ -1,11 +1,11 @@
 package redis.clients.jedis;
 
 import redis.clients.jedis.JedisClusterInfoCache.SlotState;
+import redis.clients.jedis.params.set.SetParams;
 import redis.clients.util.KeyMergeUtil;
 import redis.clients.util.SafeEncoder;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     if (connectionHandler != null) {
       for (JedisPool pool : connectionHandler.getNodes().values()) {
         try {
@@ -88,12 +88,11 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   }
 
   @Override
-  public String set(final byte[] key, final byte[] value, final byte[] nxxx, final byte[] expx,
-      final long time) {
+  public String set(final byte[] key, final byte[] value, final SetParams params) {
     return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
-        return connection.set(key, value, nxxx, expx, time);
+        return connection.set(key, value, params);
       }
     }.runBinary(key);
   }

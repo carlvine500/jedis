@@ -1,5 +1,7 @@
 package redis.clients.jedis;
 
+import redis.clients.jedis.params.set.SetParams;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -7,7 +9,7 @@ import java.util.Set;
 public interface JedisClusterCommands {
   String set(String key, String value);
 
-  String set(String key, String value, String nxxx, String expx, long time);
+  String set(String key, String value, SetParams params);
 
   String get(String key);
 
@@ -232,7 +234,7 @@ public interface JedisClusterCommands {
   Long pfadd(final String key, final String... elements);
 
   long pfcount(final String key);
-  
+
   Pipeline pipelined(String key);
 
   Long pttl(String key);

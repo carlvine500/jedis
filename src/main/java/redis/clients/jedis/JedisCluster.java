@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import redis.clients.jedis.params.set.SetParams;
+
 public class JedisCluster extends BinaryJedisCluster implements JedisClusterCommands,
     MultiKeyJedisClusterCommands, JedisClusterScriptingCommands {
   public static enum Reset {
@@ -58,12 +60,11 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   }
 
   @Override
-  public String set(final String key, final String value, final String nxxx, final String expx,
-      final long time) {
+  public String set(final String key, final String value, final SetParams params) {
     return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
-        return connection.set(key, value, nxxx, expx, time);
+        return connection.set(key, value, params);
       }
     }.run(key);
   }
@@ -1652,7 +1653,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       }
     }.run(key);
   }
-  
+
   @Override
   public Long pttl(final String key) {
     return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
@@ -1662,7 +1663,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       }
     }.run(key);
   }
-  
+
   @Override
   public String psetex(final String key, final long milliseconds, final String value) {
     return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
