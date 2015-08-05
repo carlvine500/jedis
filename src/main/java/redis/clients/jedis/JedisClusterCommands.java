@@ -237,4 +237,6 @@ public interface JedisClusterCommands {
 
   Long pttl(String key);
 
+  String psetex(String key, long milliseconds, String value);
+
 }

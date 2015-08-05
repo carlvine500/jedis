@@ -1662,5 +1662,15 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       }
     }.run(key);
   }
+  
+  @Override
+  public String psetex(final String key, final long milliseconds, final String value) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
+      @Override
+      public String execute(Jedis connection) {
+        return connection.psetex(key, milliseconds, value);
+      }
+    }.run(key);
+  }
 
 }
