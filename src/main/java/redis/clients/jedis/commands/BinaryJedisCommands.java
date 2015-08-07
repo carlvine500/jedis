@@ -1,11 +1,16 @@
-package redis.clients.jedis;
+package redis.clients.jedis.commands;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.BinaryClient;
+import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.Tuple;
 import redis.clients.jedis.params.set.SetParams;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
 /**
  * Common interface for sharded and non-sharded BinaryJedis
@@ -131,13 +136,19 @@ public interface BinaryJedisCommands {
 
   Long zadd(byte[] key, double score, byte[] member);
 
+  Long zadd(byte[] key, double score, byte[] member, ZAddParams params);
+
   Long zadd(byte[] key, Map<byte[], Double> scoreMembers);
+
+  Long zadd(byte[] key, Map<byte[], Double> scoreMembers, ZAddParams params);
 
   Set<byte[]> zrange(byte[] key, long start, long end);
 
   Long zrem(byte[] key, byte[]... member);
 
   Double zincrby(byte[] key, double score, byte[] member);
+
+  Double zincrby(byte[] key, double score, byte[] member, ZIncrByParams params);
 
   Long zrank(byte[] key, byte[] member);
 
@@ -213,7 +224,7 @@ public interface BinaryJedisCommands {
 
   Long zremrangeByLex(final byte[] key, final byte[] min, final byte[] max);
 
-  Long linsert(byte[] key, Client.LIST_POSITION where, byte[] pivot, byte[] value);
+  Long linsert(byte[] key, BinaryClient.LIST_POSITION where, byte[] pivot, byte[] value);
 
   Long lpushx(byte[] key, byte[]... arg);
 

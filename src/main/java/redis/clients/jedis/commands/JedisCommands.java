@@ -1,10 +1,13 @@
-package redis.clients.jedis;
+package redis.clients.jedis.commands;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.*;
 import redis.clients.jedis.params.set.SetParams;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
 /**
  * Common interface for sharded and non-sharded Jedis
@@ -134,13 +137,19 @@ public interface JedisCommands {
 
   Long zadd(String key, double score, String member);
 
+  Long zadd(String key, double score, String member, ZAddParams params);
+
   Long zadd(String key, Map<String, Double> scoreMembers);
+
+  Long zadd(String key, Map<String, Double> scoreMembers, ZAddParams params);
 
   Set<String> zrange(String key, long start, long end);
 
   Long zrem(String key, String... member);
 
   Double zincrby(String key, double score, String member);
+
+  Double zincrby(String key, double score, String member, ZIncrByParams params);
 
   Long zrank(String key, String member);
 
@@ -216,7 +225,7 @@ public interface JedisCommands {
 
   Long zremrangeByLex(final String key, final String min, final String max);
 
-  Long linsert(String key, Client.LIST_POSITION where, String pivot, String value);
+  Long linsert(String key, BinaryClient.LIST_POSITION where, String pivot, String value);
 
   Long lpushx(String key, String... string);
 

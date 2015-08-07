@@ -1,5 +1,7 @@
 package redis.clients.jedis;
 
+import redis.clients.jedis.commands.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

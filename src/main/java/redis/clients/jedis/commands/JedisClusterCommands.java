@@ -1,10 +1,17 @@
-package redis.clients.jedis;
-
-import redis.clients.jedis.params.set.SetParams;
+package redis.clients.jedis.commands;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import redis.clients.jedis.BinaryClient;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.Tuple;
+import redis.clients.jedis.params.set.SetParams;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
 public interface JedisClusterCommands {
   String set(String key, String value);
@@ -125,13 +132,19 @@ public interface JedisClusterCommands {
 
   Long zadd(String key, double score, String member);
 
+  Long zadd(String key, double score, String member, ZAddParams params);
+
   Long zadd(String key, Map<String, Double> scoreMembers);
+
+  Long zadd(String key, Map<String, Double> scoreMembers, ZAddParams params);
 
   Set<String> zrange(String key, long start, long end);
 
   Long zrem(String key, String... member);
 
   Double zincrby(String key, double score, String member);
+
+  Double zincrby(String key, double score, String member, ZIncrByParams params);
 
   Long zrank(String key, String member);
 
@@ -207,7 +220,7 @@ public interface JedisClusterCommands {
 
   Long zremrangeByLex(final String key, final String min, final String max);
 
-  Long linsert(String key, Client.LIST_POSITION where, String pivot, String value);
+  Long linsert(String key, BinaryClient.LIST_POSITION where, String pivot, String value);
 
   Long lpushx(String key, String... string);
 

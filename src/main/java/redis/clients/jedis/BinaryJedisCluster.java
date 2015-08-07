@@ -1,7 +1,12 @@
 package redis.clients.jedis;
 
 import redis.clients.jedis.JedisClusterInfoCache.SlotState;
+import redis.clients.jedis.commands.BinaryJedisClusterCommands;
+import redis.clients.jedis.commands.JedisClusterBinaryScriptingCommands;
+import redis.clients.jedis.commands.MultiKeyBinaryJedisClusterCommands;
 import redis.clients.jedis.params.set.SetParams;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 import redis.clients.util.KeyMergeUtil;
 import redis.clients.util.SafeEncoder;
 
@@ -668,11 +673,32 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   }
 
   @Override
+  public Long zadd(final byte[] key, final double score, final byte[] member,
+      final ZAddParams params) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+      @Override
+      public Long execute(Jedis connection) {
+        return connection.zadd(key, score, member, params);
+      }
+    }.runBinary(key);
+  }
+
+  @Override
   public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers) {
     return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zadd(key, scoreMembers);
+      }
+    }.runBinary(key);
+  }
+
+  @Override
+  public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers, final ZAddParams params) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+      @Override
+      public Long execute(Jedis connection) {
+        return connection.zadd(key, scoreMembers, params);
       }
     }.runBinary(key);
   }
@@ -703,6 +729,17 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
       @Override
       public Double execute(Jedis connection) {
         return connection.zincrby(key, score, member);
+      }
+    }.runBinary(key);
+  }
+
+  @Override
+  public Double zincrby(final byte[] key, final double score, final byte[] member,
+      final ZIncrByParams params) {
+    return new JedisClusterCommand<Double>(connectionHandler, maxRedirections) {
+      @Override
+      public Double execute(Jedis connection) {
+        return connection.zincrby(key, score, member, params);
       }
     }.runBinary(key);
   }
