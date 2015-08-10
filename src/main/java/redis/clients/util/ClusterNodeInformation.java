@@ -1,6 +1,6 @@
 package redis.clients.util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,43 +11,73 @@ import redis.clients.jedis.HostAndPort;
 
 public class ClusterNodeInformation {
   private HostAndPort node;
-  private List<Integer> availableSlots;
-  private List<Integer> slotsBeingImported;
-  private List<Integer> slotsBeingMigrated;
+  private String[] slotRanges;
+  private String nodeId;
+  private String slaveOf;
+  private Set<NodeFlag> flags;
+
+  public boolean isSameMaster(ClusterNodeInformation other) {
+    return this.slaveOf != null ? this.slaveOf.equals(other.slaveOf) : other.slaveOf == null;
+  }
+
+  public boolean isSameFlags(ClusterNodeInformation other) {
+    return this.flags.equals(other.flags);
+  }
+
+  // false:failover or masterChanged
+  public boolean isSameSlot(ClusterNodeInformation other) {
+    if (other == null) {
+      return false;
+    }
+    return Arrays.equals(this.slotRanges, other.slotRanges);
+  }
+
+  @Override
+  public int hashCode() {
+    return nodeId.hashCode();
+  }
 
   public ClusterNodeInformation(HostAndPort node) {
     this.node = node;
-    this.availableSlots = new ArrayList<Integer>();
-    this.slotsBeingImported = new ArrayList<Integer>();
-    this.slotsBeingMigrated = new ArrayList<Integer>();
+    // this.availableSlots = new ArrayList<Integer>();
+    // this.slotsBeingImported = new ArrayList<Integer>();
+    // this.slotsBeingMigrated = new ArrayList<Integer>();
   }
 
-  public void addAvailableSlot(int slot) {
-    availableSlots.add(slot);
+  public String[] getSlotRanges() {
+    return slotRanges;
   }
 
-  public void addSlotBeingImported(int slot) {
-    slotsBeingImported.add(slot);
+  public void setSlotRanges(String[] slotRanges) {
+    this.slotRanges = slotRanges;
   }
 
-  public void addSlotBeingMigrated(int slot) {
-    slotsBeingMigrated.add(slot);
-  }
+  // public void addAvailableSlot(int slot) {
+  // availableSlots.add(slot);
+  // }
+  //
+  // public void addSlotBeingImported(int slot) {
+  // slotsBeingImported.add(slot);
+  // }
+  //
+  // public void addSlotBeingMigrated(int slot) {
+  // slotsBeingMigrated.add(slot);
+  // }
 
   public HostAndPort getNode() {
     return node;
   }
 
   public List<Integer> getAvailableSlots() {
-    return availableSlots;
+    return ClusterNodeInformationParser.getAvailableSlots(slotRanges);
   }
 
   public List<Integer> getSlotsBeingImported() {
-    return slotsBeingImported;
+    return ClusterNodeInformationParser.getImportingSlots(slotRanges);
   }
 
   public List<Integer> getSlotsBeingMigrated() {
-    return slotsBeingMigrated;
+    return ClusterNodeInformationParser.getMigratingSlots(slotRanges);
   }
 
   public enum NodeFlag {
@@ -74,18 +104,14 @@ public class ClusterNodeInformation {
     }
 
     public static Set<NodeFlag> parse(String nodeFlagsStr) {
-      Set<NodeFlag> set = new HashSet<ClusterNodeInformation.NodeFlag>();
       String[] flags = nodeFlagsStr.split(",");
+      Set<NodeFlag> set = new HashSet<ClusterNodeInformation.NodeFlag>(flags.length, 1F);
       for (String flag : flags) {
         set.add(strNodeFlag.get(flag));
       }
       return set;
     }
   }
-
-  private String nodeId;
-  private String slaveOf;
-  private Set<NodeFlag> flags;
 
   public String getNodeId() {
     return nodeId;

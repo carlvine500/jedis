@@ -57,4 +57,16 @@ public class JedisClusterNodeInformationParserTest extends Assert {
     assertTrue(clusterNodeInfo.getSlotsBeingImported().contains(5461));
   }
 
+  @Test
+  public void performanceTest() {
+    String nodeInfo = "5f4a2236d00008fba7ac0dd24b95762b446767bd 192.168.0.3:7380 master - 0 1400598804016 2 connected 5461-10922";
+    HostAndPort current = new HostAndPort("localhost", 7379);
+    long currentTimeMillis = System.currentTimeMillis();
+    for (int i = 0; i < 1000; i++) {
+      ClusterNodeInformation clusterNodeInfo = parser.parse(nodeInfo, current);
+    }
+    System.out.println(System.currentTimeMillis() - currentTimeMillis);
+
+  }
+
 }

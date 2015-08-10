@@ -5,10 +5,18 @@ public class HostAndPort {
 
   private String host;
   private int port;
+  private String nodeKey;
 
   public HostAndPort(String host, int port) {
     this.host = host;
     this.port = port;
+    this.nodeKey = host + ":" + port;
+  }
+
+  public HostAndPort(String nodeKey) {
+    String[] split = nodeKey.split(":");
+    this.host = split[0];
+    this.port = Integer.valueOf(split[1]);
   }
 
   public String getHost() {
@@ -48,5 +56,9 @@ public class HostAndPort {
     else if (host.equals("::1")) return LOCALHOST_STR;
 
     return host;
+  }
+
+  public String getNodeKey() {
+    return nodeKey;
   }
 }
