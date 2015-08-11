@@ -1,11 +1,13 @@
 package redis.clients.jedis;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
@@ -15,8 +17,8 @@ import redis.clients.util.ClusterNodeInformationParser;
 
 public class JedisClusterInfoCache {
   /** ConcurrentHashMap<nodeId,ClusterNodeInformation> */
-  private static final ConcurrentHashMap<String, ClusterNodeInformation> nodeInfomations = new ConcurrentHashMap<String, ClusterNodeInformation>();
-  /** ConcurrentHashMap<host:port,Object> */
+  private final ConcurrentHashMap<String, ClusterNodeInformation> nodeInfomations = new ConcurrentHashMap<String, ClusterNodeInformation>();
+  /** ConcurrentHashMap<host:port,Object> , it's shared by many clusters . */
   private static final ConcurrentHashMap<String, JedisPool> nodes = new ConcurrentHashMap<String, JedisPool>();
   /** HashMap<slot,Sharding> */
   private final Map<Integer, Sharding> slotShardings;
@@ -70,7 +72,13 @@ public class JedisClusterInfoCache {
   }
 
   public Map<String, JedisPool> getNodes() {
-    return nodes;
+    Collection<ClusterNodeInformation> values = nodeInfomations.values();
+    Map<String, JedisPool> jedisPools = new HashMap<String, JedisPool>();
+    for (ClusterNodeInformation nodeInfo : values) {
+      String nodeKey = nodeInfo.getNode().getNodeKey();
+      jedisPools.put(nodeKey, nodes.get(nodeKey));
+    }
+    return jedisPools;
   }
 
   public void reloadSlotShardings(Jedis jedis) {
@@ -126,6 +134,8 @@ public class JedisClusterInfoCache {
       }
       JedisPool jedisPool = nodes.get(nodeInfo.getNode().getNodeKey());
       for (Integer slot : availableSlots) {
+        Sharding shard = slotShardings.get(slot);
+        shard.setSlotState(SlotState.STABLE);
         if (nodeInfo.getFlags().contains(NodeFlag.MASTER)) {
           slotShardings.get(slot).setMaster(jedisPool);
         } else {
@@ -154,7 +164,7 @@ public class JedisClusterInfoCache {
       return sharding.getMaster();
     }
     int size = list.size();
-    int index = randomNumber(masterReadWeight + slaveReadWeight * size);
+    int index = RandomUtils.nextInt(0, masterReadWeight + slaveReadWeight * size);
     // System.out.println(index);
     if (index < masterReadWeight) {
       return sharding.getMaster();
@@ -175,13 +185,6 @@ public class JedisClusterInfoCache {
     }
     this.masterReadWeight = masterReadWeight;
     this.slaveReadWeight = slaveReadWeight;
-  }
-
-  // private final static Random random = new Random();
-  private static int randomNumber(int size) {
-    // random reference: http://www.oschina.net/question/157182_45274
-    return (int) (Math.floor(Math.random() * size));
-    // return random.nextInt(size);
   }
 
   public void setSlotState(int slot, SlotState slotState) {

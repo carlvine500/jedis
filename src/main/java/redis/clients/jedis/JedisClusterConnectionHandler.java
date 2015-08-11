@@ -2,6 +2,9 @@ package redis.clients.jedis;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
@@ -80,6 +83,21 @@ public abstract class JedisClusterConnectionHandler {
 
   public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
     cache.setReadWeight(masterReadWeight, slaveReadWeight);
+  }
+
+  private static class SingletonHolder {
+    private static final ScheduledExecutorService pool = Executors
+        .newSingleThreadScheduledExecutor();
+  }
+
+  public void startSlotCacheMonitor() {
+    SingletonHolder.pool.scheduleWithFixedDelay(new Runnable() {
+
+      @Override
+      public void run() {
+        renewSlotCache();
+      }
+    }, 5, 1, TimeUnit.SECONDS);
   }
 
 }

@@ -66,6 +66,10 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     }
   }
 
+  public void startSlotCacheMonitor() {
+    connectionHandler.startSlotCacheMonitor();
+  }
+
   public Map<String, JedisPool> getClusterNodes() {
     return connectionHandler.getNodes();
   }
