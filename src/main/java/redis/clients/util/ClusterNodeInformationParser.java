@@ -2,7 +2,11 @@ package redis.clients.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
@@ -13,6 +17,19 @@ public class ClusterNodeInformationParser {
   private static final String SLOT_IN_TRANSITION_IDENTIFIER = "[";
   public static final int SLOT_INFORMATIONS_START_INDEX = 8;
   public static final int HOST_AND_PORT_INDEX = 1;
+
+  public static Map<String, ClusterNodeInformation> parseAll(String clusterNodes,
+      HostAndPort current) {
+    String[] nodeInfos = clusterNodes.split("\n");
+    Map<String, ClusterNodeInformation> nodeInfoMap = new HashMap<String, ClusterNodeInformation>(
+        nodeInfos.length, 1F);
+    for (String nodeInfo : nodeInfos) {
+      ClusterNodeInformation clusterNodeInfo = ClusterNodeInformationParser
+          .parse(nodeInfo, current);
+      nodeInfoMap.put(clusterNodeInfo.getNodeId(), clusterNodeInfo);
+    }
+    return nodeInfoMap;
+  }
 
   public static ClusterNodeInformation parse(String nodeInfo, HostAndPort current) {
     String[] nodeInfoPartArray = nodeInfo.split(" ");
@@ -55,10 +72,11 @@ public class ClusterNodeInformationParser {
   public static HostAndPort getHostAndPortFromNodeLine(String[] nodeInfoPartArray,
       HostAndPort current) {
     String stringHostAndPort = nodeInfoPartArray[HOST_AND_PORT_INDEX];
-
-    String[] arrayHostAndPort = stringHostAndPort.split(":");
-    return new HostAndPort(arrayHostAndPort[0].isEmpty() ? current.getHost() : arrayHostAndPort[0],
-        arrayHostAndPort[1].isEmpty() ? current.getPort() : Integer.valueOf(arrayHostAndPort[1]));
+    int indexOf = stringHostAndPort.indexOf(':');
+    String host = stringHostAndPort.substring(0, indexOf);
+    String port = stringHostAndPort.substring(indexOf + 1);
+    return new HostAndPort(host.isEmpty() ? current.getHost() : host,
+        port.isEmpty() ? current.getPort() : Integer.valueOf(port));
   }
 
   // public static void fillSlotInformation(String[] slotInfoPartArray, ClusterNodeInformation info)

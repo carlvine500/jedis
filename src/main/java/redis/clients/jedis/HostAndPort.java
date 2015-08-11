@@ -14,9 +14,9 @@ public class HostAndPort {
   }
 
   public HostAndPort(String nodeKey) {
-    String[] split = nodeKey.split(":");
-    this.host = split[0];
-    this.port = Integer.valueOf(split[1]);
+    int indexOf = nodeKey.indexOf(':');
+    this.host = convertHost(nodeKey.substring(0, indexOf));
+    this.port = Integer.valueOf(nodeKey.substring(indexOf + 1));
   }
 
   public String getHost() {

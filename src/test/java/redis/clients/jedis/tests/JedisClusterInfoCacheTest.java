@@ -1,12 +1,11 @@
 package redis.clients.jedis.tests;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.junit.Assert;
 import org.junit.Test;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisClusterInfoCache;
-import redis.clients.jedis.JedisPool;
-import org.junit.*;
 
 public class JedisClusterInfoCacheTest {
   public static final String clusterNodes = ""//
@@ -22,25 +21,12 @@ public class JedisClusterInfoCacheTest {
     JedisClusterInfoCache cache = new JedisClusterInfoCache(new GenericObjectPoolConfig(), 5000);
     long end = System.nanoTime();
     long begin = end;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 100000; i++) {
       cache.reloadSlotShardings(clusterNodes, new HostAndPort("127.0.0.1", 7000));
     }
     long x = System.nanoTime() - begin;
-    end = System.nanoTime();
-    System.out.println(x / 1000.0 / 1000);
-
-    // JedisPool m1 = cache.getMasterOrSlaveAtRandom(10922);
-    // Assert.assertEquals(7002, m1.getResource().getClient().getPort());
-    //
-    // JedisPool m2 = cache.getMasterOrSlaveAtRandom(5461);
-    // Assert.assertEquals(7001, m2.getResource().getClient().getPort());
-    //
-    // for (int i = 0; i < 10; i++) {
-    // JedisPool m3 = cache.getMasterOrSlaveAtRandom(0);
-    // int port = m3.getResource().getClient().getPort();
-    // // System.out.println(port);
-    // Assert.assertTrue(port == 7000 || port == 7003);
-    // }
+    double ms = x / 1000.0 / 1000;
+    System.out.println(ms);
+    Assert.assertTrue("reloadSlotShardings cost too much time .", ms < 2000);
   }
-  // TODO renew by slot but not nodes info
 }

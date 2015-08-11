@@ -80,36 +80,33 @@ public class JedisClusterInfoCache {
   }
 
   public void reloadSlotShardings(String clusterNodes, HostAndPort current) {
-    Map<String, ClusterNodeInformation> nodeInfoMap = new HashMap<String, ClusterNodeInformation>();
-    for (String nodeInfo : clusterNodes.split("\n")) {
-      ClusterNodeInformation clusterNodeInfo = ClusterNodeInformationParser
-          .parse(nodeInfo, current);
-      nodeInfoMap.put(clusterNodeInfo.getNodeId(), clusterNodeInfo);
-      if (clusterNodeInfo.isDead()) {
-        closeSlaveConnection(clusterNodeInfo.getNode().getNodeKey());
+    Map<String, ClusterNodeInformation> nodeInfoMap = ClusterNodeInformationParser.parseAll(
+      clusterNodes, current);
+    /** create jedis pool */
+    for (ClusterNodeInformation nodeInfo : nodeInfoMap.values()) {
+      if (nodeInfo.isInactive()) {
+        closeSlaveConnection(nodeInfo.getNode().getNodeKey());
         continue;
       }
-      if (clusterNodeInfo.isSameSlot(nodeInfomations.get(clusterNodeInfo.getNodeId()))) {
+      if (nodeInfo.isSameSlot(nodeInfomations.get(nodeInfo.getNodeId()))) {
         continue;
       }
-      Operation op = null;
-      if (clusterNodeInfo.getFlags().contains(NodeFlag.SLAVE)) {
-        op = Operation.READONLY;
-      }
-      if (clusterNodeInfo.getFlags().contains(NodeFlag.MASTER)) {
-        op = Operation.READWRITE;
-      }
-      if (op == null) {
-        continue;
-      }
-      setNodeIfNotExist(clusterNodeInfo.getNode(), op);
+      Operation op = nodeInfo.isSlave() ? Operation.READONLY : Operation.READWRITE;
+      setNodeIfNotExist(nodeInfo.getNode(), op);
     }
-
+    /**
+     * 1.mark unstable shardings; 2.put master/slave in slotShardings
+     */
     for (ClusterNodeInformation nodeInfo : nodeInfoMap.values()) {
       if (nodeInfo.isSameSlot(nodeInfomations.get(nodeInfo.getNodeId()))) {
         continue;
       }
       nodeInfomations.put(nodeInfo.getNodeId(), nodeInfo);
+      if (nodeInfo.isInactive()) {
+        nodeInfomations.remove(nodeInfo.getNodeId());
+        continue;
+      }
+
       List<Integer> availableSlots = nodeInfo.getAvailableSlots();
       ClusterNodeInformation masterNodeInfo = nodeInfo;
       if (nodeInfo.getFlags().contains(NodeFlag.MASTER)) {
@@ -127,7 +124,6 @@ public class JedisClusterInfoCache {
         masterNodeInfo = nodeInfoMap.get(nodeInfo.getSlaveOf());
         availableSlots = masterNodeInfo.getAvailableSlots();
       }
-
       JedisPool jedisPool = nodes.get(nodeInfo.getNode().getNodeKey());
       for (Integer slot : availableSlots) {
         if (nodeInfo.getFlags().contains(NodeFlag.MASTER)) {

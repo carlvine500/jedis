@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import redis.clients.jedis.HostAndPort;
 
 public class ClusterNodeInformation {
@@ -104,7 +106,7 @@ public class ClusterNodeInformation {
     }
 
     public static Set<NodeFlag> parse(String nodeFlagsStr) {
-      String[] flags = nodeFlagsStr.split(",");
+      String[] flags = StringUtils.split(nodeFlagsStr, ',');
       Set<NodeFlag> set = new HashSet<ClusterNodeInformation.NodeFlag>(flags.length, 1F);
       for (String flag : flags) {
         set.add(strNodeFlag.get(flag));
@@ -137,15 +139,26 @@ public class ClusterNodeInformation {
     this.flags = flags;
   }
 
-  public boolean isDead() {
-    return flags.contains(NodeFlag.EVENTUAL_FAIL) //
-        || flags.contains(NodeFlag.FAIL) //
-        || flags.contains(NodeFlag.HANDSHAKE) //
-        || flags.contains(NodeFlag.NOADDR);
+  // flags may be : slave,fail,noaddr
+  public boolean isInactive() {
+    return flags.contains(NodeFlag.NOFLAGS) //
+        || flags.contains(NodeFlag.EVENTUAL_FAIL)//
+        || flags.contains(NodeFlag.FAIL)//
+        || flags.contains(NodeFlag.HANDSHAKE)//
+        || flags.contains(NodeFlag.NOADDR)//
+    ;
   }
 
-  public boolean isAlive() {
-    return !isDead();
+  public boolean isActive() {
+    return !isInactive();
+  }
+
+  public boolean isMaster() {
+    return flags.contains(NodeFlag.MASTER); //
+  }
+
+  public boolean isSlave() {
+    return flags.contains(NodeFlag.SLAVE); //
   }
 
 }
