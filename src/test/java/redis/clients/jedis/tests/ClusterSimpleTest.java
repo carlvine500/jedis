@@ -31,12 +31,13 @@ public class ClusterSimpleTest {
     final JedisCluster jc = new JedisCluster(jedisClusterNode, poolConfig);
     final byte[][] bytes = new byte[][] { { 50 }, { 51 }, { 52 } };
     final byte[] bytes2 = new byte[5];
+    jc.setReadWeight(1, 1);
     // Thread.sleep(1000000000000L);
-    String s = jc.get("b");
-    // for (int i = 0; i < 100000; i++) {
-    // String string = jc.get("b");
-    // System.out.println(string);
-    // }
+    // String s = jc.get("b");
+    for (int i = 0; i < 100000; i++) {
+      String string = jc.get("b");
+      System.out.println(string);
+    }
   }
 
   public static void testname2() throws Exception {

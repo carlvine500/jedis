@@ -79,7 +79,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   }
 
   public void closeSlaveConnection(String nodeKey) {
-    connectionHandler.closeSlaveConnection(nodeKey);
+    connectionHandler.closeConnections(nodeKey);
   }
 
   public void setReadWeight(int masterReadWeight, int slaveReadWeight) {

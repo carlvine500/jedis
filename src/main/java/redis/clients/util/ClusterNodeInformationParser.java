@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import redis.clients.jedis.HostAndPort;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
@@ -17,6 +15,30 @@ public class ClusterNodeInformationParser {
   private static final String SLOT_IN_TRANSITION_IDENTIFIER = "[";
   public static final int SLOT_INFORMATIONS_START_INDEX = 8;
   public static final int HOST_AND_PORT_INDEX = 1;
+
+  public static Map<String, List<String>> getMasterSlaveNodeIds(
+      Map<String, ClusterNodeInformation> nodeInfos) {
+    Map<String, List<String>> masterSlaves = new HashMap<String, List<String>>();
+    for (ClusterNodeInformation nodeInfo : nodeInfos.values()) {
+      String masterNodeId = null;
+      if (nodeInfo.isSlave()) {
+        masterNodeId = nodeInfos.get(nodeInfo.getSlaveOf()).getNodeId();
+      } else if (nodeInfo.isMaster()) {
+        masterNodeId = nodeInfo.getNodeId();
+      } else {
+        continue;
+      }
+      List<String> slaveNodeIds = masterSlaves.get(masterNodeId);
+      if (slaveNodeIds == null) {
+        slaveNodeIds = new ArrayList<String>();
+      }
+      if (nodeInfo.isSlave()) {
+        slaveNodeIds.add(nodeInfo.getNodeId());
+      }
+      masterSlaves.put(masterNodeId, slaveNodeIds);
+    }
+    return masterSlaves;
+  }
 
   public static Map<String, ClusterNodeInformation> parseAll(String clusterNodes,
       HostAndPort current) {
@@ -79,41 +101,8 @@ public class ClusterNodeInformationParser {
         port.isEmpty() ? current.getPort() : Integer.valueOf(port));
   }
 
-  // public static void fillSlotInformation(String[] slotInfoPartArray, ClusterNodeInformation info)
-  // {
-  // for (String slotRange : slotInfoPartArray) {
-  // fillSlotInformationFromSlotRange(slotRange, info);
-  // }
-  // }
-
-  // private static void fillSlotInformationFromSlotRange(String slotRange, ClusterNodeInformation
-  // info) {
-  // if (slotRange.startsWith(SLOT_IN_TRANSITION_IDENTIFIER)) {
-  // // slot is in transition
-  // int slot = Integer.parseInt(slotRange.substring(1).split("-")[0]);
-  //
-  // if (slotRange.contains(SLOT_IMPORT_IDENTIFIER)) {
-  // // import
-  // info.addSlotBeingImported(slot);
-  // } else {
-  // // migrate (->-)
-  // info.addSlotBeingMigrated(slot);
-  // }
-  // } else if (slotRange.contains("-")) {
-  // // slot range
-  // String[] slotRangePart = slotRange.split("-");
-  // for (int slot = Integer.valueOf(slotRangePart[0]); slot <= Integer.valueOf(slotRangePart[1]);
-  // slot++) {
-  // info.addAvailableSlot(slot);
-  // }
-  // } else {
-  // // single slot
-  // info.addAvailableSlot(Integer.valueOf(slotRange));
-  // }
-  // }
-
   public static List<Integer> getAvailableSlots(String[] slotRanges) {
-    List<Integer> availableSlots = new ArrayList<Integer>();
+    List<Integer> availableSlots = Collections.emptyList();
     for (String slotRange : slotRanges) {
       if (slotRange.startsWith(SLOT_IN_TRANSITION_IDENTIFIER)) {
         continue;
@@ -123,6 +112,9 @@ public class ClusterNodeInformationParser {
         String[] slotRangePart = slotRange.split("-");
         Integer end = Integer.valueOf(slotRangePart[1]);
         for (int slot = Integer.valueOf(slotRangePart[0]); slot <= end; slot++) {
+          if (availableSlots.isEmpty()) {
+            availableSlots = new ArrayList<Integer>();
+          }
           availableSlots.add(slot);
         }
       } else {

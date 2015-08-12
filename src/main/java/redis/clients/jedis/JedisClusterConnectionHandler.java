@@ -77,8 +77,8 @@ public abstract class JedisClusterConnectionHandler {
     cache.setSlotState(slot, slotState);
   }
 
-  public void closeSlaveConnection(String nodeKey) {
-    cache.closeSlaveConnection(nodeKey);
+  public void closeConnections(String nodeKey) {
+    cache.closeConnections(nodeKey);
   }
 
   public void setReadWeight(int masterReadWeight, int slaveReadWeight) {

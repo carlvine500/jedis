@@ -23,6 +23,7 @@ public class ClusterNodeInformation {
   }
 
   public boolean isSameFlags(ClusterNodeInformation other) {
+    // if flags contains mysql,it's not correct
     return this.flags.equals(other.flags);
   }
 
@@ -37,6 +38,12 @@ public class ClusterNodeInformation {
   @Override
   public int hashCode() {
     return nodeId.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    ClusterNodeInformation other = (ClusterNodeInformation) obj;
+    return this.nodeId.equals(other.nodeId);
   }
 
   public ClusterNodeInformation(HostAndPort node) {

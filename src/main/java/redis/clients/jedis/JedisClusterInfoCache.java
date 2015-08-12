@@ -1,9 +1,11 @@
 package redis.clients.jedis;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -12,12 +14,11 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.util.ClusterNodeInformation;
-import redis.clients.util.ClusterNodeInformation.NodeFlag;
 import redis.clients.util.ClusterNodeInformationParser;
 
 public class JedisClusterInfoCache {
   /** ConcurrentHashMap<nodeId,ClusterNodeInformation> */
-  private final ConcurrentHashMap<String, ClusterNodeInformation> nodeInfomations = new ConcurrentHashMap<String, ClusterNodeInformation>();
+  private final Map<String, ClusterNodeInformation> nodeInfomations = new HashMap<String, ClusterNodeInformation>();
   /** ConcurrentHashMap<host:port,Object> , it's shared by many clusters . */
   private static final ConcurrentHashMap<String, JedisPool> nodes = new ConcurrentHashMap<String, JedisPool>();
   /** HashMap<slot,Sharding> */
@@ -53,18 +54,16 @@ public class JedisClusterInfoCache {
     if (nodes.containsKey(nodeKey)) {
       JedisFactory jf = (JedisFactory) nodes.get(nodeKey).getInternalPool().getFactory();
       // when M/S switch , slaves need to be readonly mode;
-      if (jf.getOperation() == op) {
-        return;
+      if (jf.getOperation() != op) {
+        jf.setOperation(jf.getOperation() == Operation.READONLY ? Operation.READWRITE
+            : Operation.READONLY);
       }
+      return;
     }
 
     JedisPool nodePool = new JedisPool(poolConfig, node.getHost(), node.getPort(),
         connectionTimeout, soTimeout, null, 0, null, op);
-    JedisPool oldJedisPool = nodes.get(nodeKey);
     nodes.put(nodeKey, nodePool);
-    if (oldJedisPool != null) {
-      oldJedisPool.close();
-    }
   }
 
   public JedisPool getNode(String nodeKey) {
@@ -87,62 +86,54 @@ public class JedisClusterInfoCache {
     reloadSlotShardings(clusterNodes, current);
   }
 
-  public void reloadSlotShardings(String clusterNodes, HostAndPort current) {
+  public synchronized void reloadSlotShardings(String clusterNodes, HostAndPort current) {
     Map<String, ClusterNodeInformation> nodeInfoMap = ClusterNodeInformationParser.parseAll(
       clusterNodes, current);
-    /** create jedis pool */
-    for (ClusterNodeInformation nodeInfo : nodeInfoMap.values()) {
-      if (nodeInfo.isInactive()) {
-        closeSlaveConnection(nodeInfo.getNode().getNodeKey());
+    boolean canReloadSlotShardings = false;
+    for (ClusterNodeInformation newNodeInfo : nodeInfoMap.values()) {
+      if (newNodeInfo.isInactive()) {
+        closeConnections(newNodeInfo.getNode().getNodeKey());
         continue;
       }
-      if (nodeInfo.isSameSlot(nodeInfomations.get(nodeInfo.getNodeId()))) {
+      ClusterNodeInformation oldNodeInfo = nodeInfomations.get(newNodeInfo.getNodeId());
+      if (newNodeInfo.isSameSlot(oldNodeInfo) && newNodeInfo.isSameMaster(oldNodeInfo)) {
         continue;
       }
-      Operation op = nodeInfo.isSlave() ? Operation.READONLY : Operation.READWRITE;
-      setNodeIfNotExist(nodeInfo.getNode(), op);
+      nodeInfomations.put(newNodeInfo.getNodeId(), newNodeInfo);
+      setNodeIfNotExist(newNodeInfo.getNode(), newNodeInfo.isSlave() ? Operation.READONLY
+          : Operation.READWRITE);
+      canReloadSlotShardings = true;
     }
-    /**
-     * 1.mark unstable shardings; 2.put master/slave in slotShardings
-     */
-    for (ClusterNodeInformation nodeInfo : nodeInfoMap.values()) {
-      if (nodeInfo.isSameSlot(nodeInfomations.get(nodeInfo.getNodeId()))) {
-        continue;
-      }
-      nodeInfomations.put(nodeInfo.getNodeId(), nodeInfo);
-      if (nodeInfo.isInactive()) {
-        nodeInfomations.remove(nodeInfo.getNodeId());
-        continue;
+
+    if (!canReloadSlotShardings) {
+      return;
+    }
+
+    Map<String, List<String>> masterSlaveNodeIds = ClusterNodeInformationParser
+        .getMasterSlaveNodeIds(nodeInfoMap);
+    for (Entry<String, List<String>> masterSlaveNodeIdEntry : masterSlaveNodeIds.entrySet()) {
+      String masterNodeId = masterSlaveNodeIdEntry.getKey();
+      ClusterNodeInformation masterNodeInfo = nodeInfoMap.get(masterNodeId);
+      JedisPool masterJedisPool = nodes.get(masterNodeInfo.getNode().getNodeKey());
+
+      List<String> slaveNodeIds = masterSlaveNodeIdEntry.getValue();
+      List<JedisPool> slaveJedisPools = new ArrayList<JedisPool>(slaveNodeIds.size());
+      for (String slaveNodeId : slaveNodeIds) {
+        JedisPool slaveJedisPool = nodes.get(nodeInfoMap.get(slaveNodeId).getNode().getNodeKey());
+        slaveJedisPools.add(slaveJedisPool);
       }
 
-      List<Integer> availableSlots = nodeInfo.getAvailableSlots();
-      ClusterNodeInformation masterNodeInfo = nodeInfo;
-      if (nodeInfo.getFlags().contains(NodeFlag.MASTER)) {
-        List<Integer> slotsBeingImported = masterNodeInfo.getSlotsBeingImported();
-        for (Integer slot : slotsBeingImported) {
-          slotShardings.get(slot).setSlotState(SlotState.IMPORTING);
-        }
-        List<Integer> slotsBeingMigrated = masterNodeInfo.getSlotsBeingMigrated();
-        for (Integer slot : slotsBeingMigrated) {
-          slotShardings.get(slot).setSlotState(SlotState.MIGRATING);
-        }
+      for (Integer slot : masterNodeInfo.getSlotsBeingImported()) {
+        slotShardings.get(slot).setSlotState(SlotState.IMPORTING);
       }
-
-      if (availableSlots.isEmpty()) {
-        masterNodeInfo = nodeInfoMap.get(nodeInfo.getSlaveOf());
-        availableSlots = masterNodeInfo.getAvailableSlots();
+      for (Integer slot : masterNodeInfo.getSlotsBeingMigrated()) {
+        slotShardings.get(slot).setSlotState(SlotState.MIGRATING);
       }
-      JedisPool jedisPool = nodes.get(nodeInfo.getNode().getNodeKey());
-      for (Integer slot : availableSlots) {
-        Sharding shard = slotShardings.get(slot);
-        shard.setSlotState(SlotState.STABLE);
-        if (nodeInfo.getFlags().contains(NodeFlag.MASTER)) {
-          slotShardings.get(slot).setMaster(jedisPool);
-        } else {
-          slotShardings.get(slot).addSlave(jedisPool);
-        }
+      for (Integer slot : masterNodeInfo.getAvailableSlots()) {
+        Sharding sharding = slotShardings.get(slot);
+        sharding.setMaster(masterJedisPool);
+        sharding.setSlaves(new CopyOnWriteArrayList<JedisPool>(slaveJedisPools));
       }
-
     }
   }
 
@@ -191,13 +182,16 @@ public class JedisClusterInfoCache {
     slotShardings.get(slot).setSlotState(slotState);
   }
 
-  public void closeSlaveConnection(String nodeKey) {
-    nodes.get(nodeKey).close();
+  public void closeConnections(String nodeKey) {
+    JedisPool jedisPool = nodes.get(nodeKey);
+    if (jedisPool != null) {
+      jedisPool.close();
+    }
   }
 
   public static class Sharding {
     private volatile transient JedisPool master;
-    private List<JedisPool> slaves = new CopyOnWriteArrayList<JedisPool>();
+    private volatile transient List<JedisPool> slaves = new CopyOnWriteArrayList<JedisPool>();
     private volatile transient SlotState slotState = SlotState.STABLE;
 
     public boolean isMigratingImporting() {
@@ -212,10 +206,8 @@ public class JedisClusterInfoCache {
       this.master = master;
     }
 
-    public synchronized void addSlave(JedisPool slave) {
-      if (!slaves.contains(slave)) {
-        slaves.add(slave);
-      }
+    public void setSlaves(List<JedisPool> slaves) {
+      this.slaves = slaves;
     }
 
     public List<JedisPool> getSlaves() {
@@ -229,6 +221,7 @@ public class JedisClusterInfoCache {
     public SlotState getSlotState() {
       return slotState;
     }
+
   }
 
   public enum SlotState {

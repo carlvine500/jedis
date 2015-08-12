@@ -21,10 +21,14 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
   private final String password;
   private final int database;
   private final String clientName;
-  private final Operation operation;
+  private volatile transient Operation operation;
 
   public Operation getOperation() {
     return operation;
+  }
+
+  public void setOperation(Operation operation) {
+    this.operation = operation;
   }
 
   public JedisFactory(final String host, final int port, final int connectionTimeout,
