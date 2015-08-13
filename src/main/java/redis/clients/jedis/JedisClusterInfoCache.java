@@ -27,8 +27,8 @@ public class JedisClusterInfoCache {
   private final GenericObjectPoolConfig poolConfig;
   private int connectionTimeout;
   private int soTimeout;
-  private int masterReadWeight = 1;
-  private int slaveReadWeight = 0;
+  private volatile int masterReadWeight = 1;
+  private volatile int slaveReadWeight = 0;
 
   public JedisClusterInfoCache(final GenericObjectPoolConfig poolConfig, int timeout) {
     this(poolConfig, timeout, timeout);
@@ -129,10 +129,12 @@ public class JedisClusterInfoCache {
       for (Integer slot : masterNodeInfo.getSlotsBeingMigrated()) {
         slotShardings.get(slot).setSlotState(SlotState.MIGRATING);
       }
+      CopyOnWriteArrayList<JedisPool> slavePools = new CopyOnWriteArrayList<JedisPool>(
+          slaveJedisPools);
       for (Integer slot : masterNodeInfo.getAvailableSlots()) {
         Sharding sharding = slotShardings.get(slot);
         sharding.setMaster(masterJedisPool);
-        sharding.setSlaves(new CopyOnWriteArrayList<JedisPool>(slaveJedisPools));
+        sharding.setSlaves(slavePools);
       }
     }
   }
