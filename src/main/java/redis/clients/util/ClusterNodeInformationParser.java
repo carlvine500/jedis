@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Jedis;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
 public class ClusterNodeInformationParser {
@@ -15,6 +16,7 @@ public class ClusterNodeInformationParser {
   private static final String SLOT_IN_TRANSITION_IDENTIFIER = "[";
   public static final int SLOT_INFORMATIONS_START_INDEX = 8;
   public static final int HOST_AND_PORT_INDEX = 1;
+  public static final int NODE_FLAG_INDEX = 2;
 
   public static Map<String, List<String>> getMasterSlaveNodeIds(
       Map<String, ClusterNodeInformation> nodeInfos) {
@@ -67,7 +69,7 @@ public class ClusterNodeInformationParser {
 
     info.setNodeId(nodeInfoPartArray[0]);
 
-    String flagString = nodeInfoPartArray[2];
+    String flagString = nodeInfoPartArray[NODE_FLAG_INDEX];
     info.setFlags(NodeFlag.parse(flagString));
 
     String slaveOf = nodeInfoPartArray[3];
@@ -94,11 +96,33 @@ public class ClusterNodeInformationParser {
   public static HostAndPort getHostAndPortFromNodeLine(String[] nodeInfoPartArray,
       HostAndPort current) {
     String stringHostAndPort = nodeInfoPartArray[HOST_AND_PORT_INDEX];
-    int indexOf = stringHostAndPort.indexOf(':');
-    String host = stringHostAndPort.substring(0, indexOf);
-    String port = stringHostAndPort.substring(indexOf + 1);
-    return new HostAndPort(host.isEmpty() ? current.getHost() : host,
-        port.isEmpty() ? current.getPort() : Integer.valueOf(port));
+    if (nodeInfoPartArray[NODE_FLAG_INDEX].contains("myself")) {
+      return current;
+    }
+    return new HostAndPort(stringHostAndPort);
+  }
+
+  /**
+   * get all nodes from the cluster be care, sometimes the output likes this:
+   * fd80d1696a8af7c6148db3a824dadbb09622227a :8000 myself,master - 0 0 0 connected 0-16300
+   * 0ef0b665a18723b6384d93dbc886b97e90c100db 10.7.40.49:8002 master - 0 1414050055100 2 connected
+   * 16301-16383 a31f4967b88f2af6a4d6637fe420c76ee9a91b83 10.7.40.49:8003 slave
+   * 0ef0b665a18723b6384d93dbc886b97e90c100db 0 1414050056101 2 connected
+   * d08e6b9f7f32dcc5556b5395227e0afeadc0c836 10.7.40.49:8001 slave
+   * fd80d1696a8af7c6148db3a824dadbb09622227a 0 1414050054098 1 connected
+   * @param nodeInfo one node of the cluster
+   * @return
+   */
+  public static List<HostAndPort> getAllNodesOfCluster(String clusterNodes, HostAndPort nodeInfo) {
+    List<HostAndPort> clusterNodeList = new ArrayList<HostAndPort>();
+    clusterNodeList.add(nodeInfo);
+    String[] clusterNodesOutput = clusterNodes.split("\n");
+    for (String infoLine : clusterNodesOutput) {
+      String[] nodeInfoPartArray = infoLine.split(" ");
+      HostAndPort hnp = getHostAndPortFromNodeLine(nodeInfoPartArray, nodeInfo);
+      clusterNodeList.add(hnp);
+    }
+    return clusterNodeList;
   }
 
   public static List<Integer> getAvailableSlots(String[] slotRanges) {
