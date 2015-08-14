@@ -17,7 +17,7 @@ import redis.clients.util.ClusterNodeInformation;
 import redis.clients.util.ClusterNodeInformationParser;
 
 public class JedisClusterInfoCache {
-  /** ConcurrentHashMap<nodeId,ClusterNodeInformation> */
+  /** HashMap<nodeId,ClusterNodeInformation> */
   private final Map<String, ClusterNodeInformation> nodeInfomations = new HashMap<String, ClusterNodeInformation>();
   /** ConcurrentHashMap<host:port,Object> , it's shared by many clusters . */
   private static final ConcurrentHashMap<String, JedisPool> nodes = new ConcurrentHashMap<String, JedisPool>();
