@@ -114,6 +114,10 @@ public class BinaryClient extends Connection {
     sendCommand(QUIT);
   }
 
+  public void exists(final byte[]... keys) {
+    sendCommand(EXISTS, keys);
+  }
+
   public void exists(final byte[] key) {
     sendCommand(EXISTS, key);
   }

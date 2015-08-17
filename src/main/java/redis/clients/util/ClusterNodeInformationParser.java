@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.Jedis;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
 public class ClusterNodeInformationParser {

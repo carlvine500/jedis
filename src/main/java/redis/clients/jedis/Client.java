@@ -50,6 +50,11 @@ public class Client extends BinaryClient implements Commands {
   }
 
   @Override
+  public void exists(final String... keys) {
+    final byte[][] bkeys = SafeEncoder.encodeMany(keys);
+    exists(bkeys);
+  }
+
   public void del(final String... keys) {
     final byte[][] bkeys = new byte[keys.length][];
     for (int i = 0; i < keys.length; i++) {

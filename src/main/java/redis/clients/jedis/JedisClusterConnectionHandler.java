@@ -56,20 +56,24 @@ public abstract class JedisClusterConnectionHandler {
   }
 
   public void renewSlotCache() {
-    for (JedisPool jp : cache.getNodes().values()) {
-      Jedis jedis = null;
-      try {
-        jedis = jp.getResource();
-        // cache.discoverClusterSlots(jedis);
-        cache.reloadSlotShardings(jedis);
-        break;
-      } catch (JedisConnectionException e) {
-        // try next nodes
-      } finally {
-        if (jedis != null) {
-          jedis.close();
-        }
+    Jedis jedis = null;
+    try {
+      jedis = getConnection();
+      // cache.discoverClusterSlots(jedis);
+      cache.reloadSlotShardings(jedis);
+      // try next nodes
+    } finally {
+      if (jedis != null) {
+        jedis.close();
       }
+    }
+  }
+
+  public void renewSlotCache(Jedis jedis) {
+    try {
+      cache.reloadSlotShardings(jedis);
+    } catch (JedisConnectionException e) {
+      renewSlotCache();
     }
   }
 
