@@ -54,6 +54,20 @@ public class ClusterNodeInformationParser {
     return nodeInfoMap;
   }
 
+  public static List<HostAndPort> getActiveHostAndPorts(String clusterNodes, HostAndPort current) {
+    String[] nodeInfos = clusterNodes.split("\n");
+    List<HostAndPort> nodeInfosList = new ArrayList<HostAndPort>(nodeInfos.length);
+    for (String nodeInfo : nodeInfos) {
+      ClusterNodeInformation clusterNodeInfo = ClusterNodeInformationParser
+          .parse(nodeInfo, current);
+      if (clusterNodeInfo.isInactive()) {
+        continue;
+      }
+      nodeInfosList.add(clusterNodeInfo.getNode());
+    }
+    return nodeInfosList;
+  }
+
   public static ClusterNodeInformation parse(String nodeInfo, HostAndPort current) {
     String[] nodeInfoPartArray = nodeInfo.split(" ");
 
