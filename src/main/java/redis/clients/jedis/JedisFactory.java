@@ -39,7 +39,7 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     this.password = password;
     this.database = database;
     this.clientName = clientName;
-    this.operation = Operation.READWRITE;
+    this.operation = null;
   }
 
   public JedisFactory(final String host, final int port, final int connectionTimeout,
@@ -67,7 +67,7 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     this.password = JedisURIHelper.getPassword(uri);
     this.database = JedisURIHelper.getDBIndex(uri);
     this.clientName = clientName;
-    this.operation = Operation.READWRITE;
+    this.operation = null;
   }
 
   public void setHostAndPort(final HostAndPort hostAndPort) {

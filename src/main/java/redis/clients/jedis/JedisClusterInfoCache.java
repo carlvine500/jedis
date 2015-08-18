@@ -53,7 +53,7 @@ public class JedisClusterInfoCache {
     String nodeKey = node.getNodeKey();
     if (nodes.containsKey(nodeKey)) {
       JedisFactory jf = (JedisFactory) nodes.get(nodeKey).getInternalPool().getFactory();
-      // when M/S switch , slaves need to be readonly mode;
+      // when M/S switch , slaves need to be readonly mode, readwrite will exe by redis master;
       if (jf.getOperation() != op) {
         jf.setOperation(jf.getOperation() == Operation.READONLY ? Operation.READWRITE
             : Operation.READONLY);
