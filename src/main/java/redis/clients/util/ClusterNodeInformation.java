@@ -1,6 +1,7 @@
 package redis.clients.util;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -114,11 +115,11 @@ public class ClusterNodeInformation {
 
     public static Set<NodeFlag> parse(String nodeFlagsStr) {
       String[] flags = StringUtils.split(nodeFlagsStr, ',');
-      Set<NodeFlag> set = new HashSet<ClusterNodeInformation.NodeFlag>(flags.length, 1F);
+      EnumSet<NodeFlag> nodeFlags = EnumSet.noneOf(NodeFlag.class);
       for (String flag : flags) {
-        set.add(strNodeFlag.get(flag));
+        nodeFlags.add(strNodeFlag.get(flag));
       }
-      return set;
+      return nodeFlags;
     }
   }
 
