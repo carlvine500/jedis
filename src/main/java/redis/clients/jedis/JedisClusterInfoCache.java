@@ -123,12 +123,6 @@ public class JedisClusterInfoCache {
         slaveJedisPools.add(slaveJedisPool);
       }
 
-      for (Integer slot : masterNodeInfo.getSlotsBeingImported()) {
-        slotShardings.get(slot).setSlotState(SlotState.IMPORTING);
-      }
-      for (Integer slot : masterNodeInfo.getSlotsBeingMigrated()) {
-        slotShardings.get(slot).setSlotState(SlotState.MIGRATING);
-      }
       CopyOnWriteArrayList<JedisPool> slavePools = new CopyOnWriteArrayList<JedisPool>(
           slaveJedisPools);
       for (Integer slot : masterNodeInfo.getAvailableSlots()) {
