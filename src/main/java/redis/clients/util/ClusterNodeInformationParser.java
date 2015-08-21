@@ -155,6 +155,9 @@ public class ClusterNodeInformationParser {
           availableSlots.add(slot);
         }
       } else {
+        if (availableSlots.isEmpty()) {
+          availableSlots = new ArrayList<Integer>();
+        }
         // single slot
         availableSlots.add(Integer.valueOf(slotRange));
       }
