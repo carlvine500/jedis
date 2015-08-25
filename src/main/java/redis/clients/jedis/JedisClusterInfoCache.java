@@ -45,19 +45,22 @@ public class JedisClusterInfoCache {
     }
   }
 
+  /**
+   * after setting a master readOnly , master will still accept write command .
+   */
   public void setNodeIfNotExist(HostAndPort node) {
-    setNodeIfNotExist(node, Operation.READWRITE);
+    setNodeIfNotExist(node, Operation.READONLY);
   }
 
   private void setNodeIfNotExist(HostAndPort node, Operation op) {
     String nodeKey = node.getNodeKey();
     if (nodes.containsKey(nodeKey)) {
-      JedisFactory jf = (JedisFactory) nodes.get(nodeKey).getInternalPool().getFactory();
-      // when M/S switch , slaves need to be readonly mode, readwrite will exe by redis master;
-      if (jf.getOperation() != op) {
-        jf.setOperation(jf.getOperation() == Operation.READONLY ? Operation.READWRITE
-            : Operation.READONLY);
-      }
+      // JedisFactory jf = (JedisFactory) nodes.get(nodeKey).getInternalPool().getFactory();
+      // // when M/S switch , slaves need to be readonly mode, readwrite will exe by redis master;
+      // if (jf.getOperation() != op) {
+      // jf.setOperation(jf.getOperation() == Operation.READONLY ? Operation.READWRITE
+      // : Operation.READONLY);
+      // }
       return;
     }
 
