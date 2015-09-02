@@ -155,7 +155,6 @@ public class JedisClusterInfoCache {
     }
     int size = list.size();
     int index = RandomUtils.nextInt(0, masterReadWeight + slaveReadWeight * size);
-    // System.out.println(index);
     if (index < masterReadWeight) {
       return sharding.getMaster();
     }
