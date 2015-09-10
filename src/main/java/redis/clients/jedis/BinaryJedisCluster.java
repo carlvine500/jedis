@@ -86,6 +86,10 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     connectionHandler.setReadWeight(masterReadWeight, slaveReadWeight);
   }
 
+  public HostAndPort getMasterHostAndPort(int slot) {
+    return connectionHandler.getMasterHostAndPort(slot);
+  }
+
   @Override
   public String set(final byte[] key, final byte[] value) {
     return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {

@@ -254,4 +254,7 @@ public interface JedisClusterCommands {
 
   String psetex(String key, long milliseconds, String value);
 
+  String migrate(String host, int port, String key, int destinationDb, int timeout);
+
+  Long waitReplicas(String key, int replicas, long timeout);
 }

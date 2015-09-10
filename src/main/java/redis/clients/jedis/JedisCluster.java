@@ -1720,4 +1720,25 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
     }.run(key);
   }
 
+  @Override
+  public String migrate(final String host, final int port, final String key,
+      final int destinationDb, final int timeout) {
+    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+      @Override
+      public String execute(Jedis connection) {
+        return connection.migrate(host, port, key, destinationDb, timeout);
+      }
+    }.run(key);
+  }
+
+  @Override
+  public Long waitReplicas(final String key, final int replicas, final long timeout) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+      @Override
+      public Long execute(Jedis connection) {
+        return connection.waitReplicas(replicas, timeout);
+      }
+    }.run(key);
+  }
+
 }

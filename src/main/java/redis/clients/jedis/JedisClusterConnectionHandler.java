@@ -19,6 +19,10 @@ public abstract class JedisClusterConnectionHandler {
 
   abstract Jedis getConnectionFromSlot(Operation op, int slot);
 
+  public HostAndPort getMasterHostAndPort(int slot) {
+    return cache.getMasterHostAndPort(slot);
+  }
+
   public Jedis getConnectionFromNode(HostAndPort node) {
     cache.setNodeIfNotExist(node);
     return cache.getNode(node.getNodeKey()).getResource();

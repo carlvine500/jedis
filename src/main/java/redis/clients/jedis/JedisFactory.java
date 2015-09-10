@@ -32,6 +32,10 @@ class JedisFactory implements PooledObjectFactory<Jedis> {
     this.operation = operation;
   }
 
+  public HostAndPort getHostAndPort() {
+    return hostAndPort.get();
+  }
+
   public JedisFactory(final String host, final int port, final int connectionTimeout,
       final int soTimeout, final String password, final int database, final String clientName) {
     this.hostAndPort.set(new HostAndPort(host, port));
