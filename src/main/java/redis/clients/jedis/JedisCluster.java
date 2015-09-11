@@ -1692,16 +1692,6 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   }
 
   @Override
-  public Pipeline pipelined(final String key) {
-    return new JedisClusterCommand<Pipeline>(connectionHandler, maxRedirections) {
-      @Override
-      public Pipeline execute(Jedis connection) {
-        return connection.pipelined();
-      }
-    }.run(key);
-  }
-
-  @Override
   public List<Object> multiExec(final String key, final MultiExecutor executor) {
     return new JedisClusterCommand<List<Object>>(connectionHandler, maxRedirections) {
       @Override

@@ -249,8 +249,6 @@ public interface JedisClusterCommands {
 
   long pfcount(final String key);
 
-  Pipeline pipelined(String key);
-
   Long pttl(String key);
 
   String psetex(String key, long milliseconds, String value);
