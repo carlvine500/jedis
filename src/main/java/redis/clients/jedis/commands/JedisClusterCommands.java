@@ -8,6 +8,7 @@ import redis.clients.jedis.BinaryClient;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.params.set.SetParams;
 import redis.clients.jedis.params.sortedset.ZAddParams;
@@ -257,4 +258,6 @@ public interface JedisClusterCommands {
   String migrate(String host, int port, String key, int destinationDb, int timeout);
 
   Long waitReplicas(String key, int replicas, long timeout);
+
+  List<Object> multiExec(String key, MultiExecutor executor);
 }

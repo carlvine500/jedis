@@ -11,6 +11,7 @@ import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.jedis.commands.JedisClusterCommands;
 import redis.clients.jedis.commands.JedisClusterScriptingCommands;
+import redis.clients.jedis.commands.MultiExecutor;
 import redis.clients.jedis.commands.MultiKeyJedisClusterCommands;
 import redis.clients.jedis.params.set.SetParams;
 import redis.clients.jedis.params.sortedset.ZAddParams;
@@ -1696,6 +1697,18 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       @Override
       public Pipeline execute(Jedis connection) {
         return connection.pipelined();
+      }
+    }.run(key);
+  }
+
+  @Override
+  public List<Object> multiExec(final String key, final MultiExecutor executor) {
+    return new JedisClusterCommand<List<Object>>(connectionHandler, maxRedirections) {
+      @Override
+      public List<Object> execute(Jedis connection) {
+        Transaction t = connection.multi();
+        executor.exec(key, t);
+        return t.exec();
       }
     }.run(key);
   }
