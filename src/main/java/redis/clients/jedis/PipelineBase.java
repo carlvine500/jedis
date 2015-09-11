@@ -1492,4 +1492,10 @@ public abstract class PipelineBase extends Queable implements BinaryRedisPipelin
     return getResponse(BuilderFactory.LONG);
   }
 
+  @Override
+  public Response<Long> waitReplicas(final String key, final int replicas, final long timeout) {
+    getClient(key).waitReplicas(replicas, timeout);
+    return getResponse(BuilderFactory.LONG);
+  }
+
 }

@@ -1120,7 +1120,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long zremrangeByLex(final String key, final String min, final String max) {
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zremrangeByLex(key, min, max);
@@ -1392,7 +1392,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long sdiffstore(final String dstkey, final String... keys) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sdiffstore(dstkey, keys);
@@ -1415,7 +1415,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long sinterstore(final String dstkey, final String... keys) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sinterstore(dstkey, keys);
@@ -1445,7 +1445,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 
   @Override
   public Long sort(final String key, final String dstkey) {
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sort(key, dstkey);
@@ -1468,7 +1468,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long sunionstore(final String dstkey, final String... keys) {
     String[] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sunionstore(dstkey, keys);
@@ -1480,7 +1480,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zinterstore(final String dstkey, final String... sets) {
     String[] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zinterstore(dstkey, sets);
@@ -1492,7 +1492,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zinterstore(final String dstkey, final ZParams params, final String... sets) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zinterstore(dstkey, params, sets);
@@ -1504,7 +1504,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zunionstore(final String dstkey, final String... sets) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zunionstore(dstkey, sets);
@@ -1516,7 +1516,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   public Long zunionstore(final String dstkey, final ZParams params, final String... sets) {
     String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
-    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zunionstore(dstkey, params, sets);

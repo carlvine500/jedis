@@ -108,4 +108,8 @@ public abstract class JedisClusterConnectionHandler {
     }, 5, 1, TimeUnit.SECONDS);
   }
 
+  public int getSlavesCount(int slot) {
+    return cache.getSlavesCount(slot);
+  }
+
 }

@@ -144,6 +144,10 @@ public class JedisClusterInfoCache {
     return ((JedisFactory) getMaster(slot).getInternalPool().getFactory()).getHostAndPort();
   }
 
+  public int getSlavesCount(int slot) {
+    return slotShardings.get(slot).slaves.size();
+  }
+
   public JedisPool getMasterOrSlaveByWeight(int slot) {
     Sharding sharding = slotShardings.get(slot);
     if (sharding.isMigratingImporting()) {

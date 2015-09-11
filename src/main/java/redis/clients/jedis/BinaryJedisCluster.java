@@ -90,6 +90,10 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     return connectionHandler.getMasterHostAndPort(slot);
   }
 
+  public int getSlavesCount(int slot) {
+    return connectionHandler.getSlavesCount(slot);
+  }
+
   @Override
   public String set(final byte[] key, final byte[] value) {
     return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
