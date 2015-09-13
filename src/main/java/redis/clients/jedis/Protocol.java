@@ -10,12 +10,14 @@ import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.exceptions.JedisMovedDataException;
+import redis.clients.jedis.exceptions.JedisTargetKeyNameExistsException;
 import redis.clients.util.RedisInputStream;
 import redis.clients.util.RedisOutputStream;
 import redis.clients.util.SafeEncoder;
 
 public final class Protocol {
 
+  private static final String TARGET_KEY_NAME_ALREADY_EXISTS = "Target key name already exists";
   private static final String ASK_RESPONSE = "ASK";
   private static final String MOVED_RESPONSE = "MOVED";
   private static final String CLUSTERDOWN_RESPONSE = "CLUSTERDOWN";
@@ -112,6 +114,8 @@ public final class Protocol {
       String[] askInfo = parseTargetHostAndSlot(message);
       throw new JedisAskDataException(message, new HostAndPort(askInfo[1],
           Integer.valueOf(askInfo[2])), Integer.valueOf(askInfo[0]));
+    } else if (message.contains(TARGET_KEY_NAME_ALREADY_EXISTS)) {
+      throw new JedisTargetKeyNameExistsException(message);
     } else if (message.startsWith(CLUSTERDOWN_RESPONSE)) {
       throw new JedisClusterException(message);
     }
