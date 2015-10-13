@@ -3,6 +3,7 @@ package redis.clients.jedis;
 import redis.clients.jedis.JedisClusterInfoCache.SlotState;
 import redis.clients.jedis.commands.BinaryJedisClusterCommands;
 import redis.clients.jedis.commands.JedisClusterBinaryScriptingCommands;
+import redis.clients.jedis.commands.MultiExecutor;
 import redis.clients.jedis.commands.MultiKeyBinaryJedisClusterCommands;
 import redis.clients.jedis.params.set.SetParams;
 import redis.clients.jedis.params.sortedset.ZAddParams;
@@ -1686,6 +1687,18 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
       @Override
       public String execute(Jedis connection) {
         return connection.restore(key, ttl, serializedValue);
+      }
+    }.runBinary(key);
+  }
+
+  @Override
+  public List<Object> multiExec(final byte[] key, final MultiExecutor<byte[]> executor) {
+    return new JedisClusterCommand<List<Object>>(connectionHandler, maxRedirections) {
+      @Override
+      public List<Object> execute(Jedis connection) {
+        Transaction t = connection.multi();
+        executor.exec(key, t);
+        return t.exec();
       }
     }.runBinary(key);
   }

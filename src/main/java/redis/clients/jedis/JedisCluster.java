@@ -1692,7 +1692,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
   }
 
   @Override
-  public List<Object> multiExec(final String key, final MultiExecutor executor) {
+  public List<Object> multiExec(final String key, final MultiExecutor<String> executor) {
     return new JedisClusterCommand<List<Object>>(connectionHandler, maxRedirections) {
       @Override
       public List<Object> execute(Jedis connection) {

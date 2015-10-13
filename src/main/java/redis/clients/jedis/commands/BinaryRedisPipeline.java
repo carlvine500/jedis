@@ -238,4 +238,6 @@ public interface BinaryRedisPipeline {
   Response<Long> pfadd(final byte[] key, final byte[]... elements);
 
   Response<Long> pfcount(final byte[] key);
+
+  Response<Long> waitReplicas(byte[] key, int replicas, long timeout);
 }

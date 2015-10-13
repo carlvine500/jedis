@@ -242,4 +242,6 @@ public interface BinaryJedisClusterCommands {
   byte[] dump(final byte[] key);
 
   String restore(final byte[] key, final long ttl, final byte[] serializedValue);
+
+  List<Object> multiExec(byte[] key, MultiExecutor<byte[]> executor);
 }

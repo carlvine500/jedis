@@ -257,5 +257,5 @@ public interface JedisClusterCommands {
 
   Long waitReplicas(String key, int replicas, long timeout);
 
-  List<Object> multiExec(String key, MultiExecutor executor);
+  List<Object> multiExec(String key, MultiExecutor<String> executor);
 }
