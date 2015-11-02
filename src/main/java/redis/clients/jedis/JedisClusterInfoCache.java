@@ -54,7 +54,7 @@ public class JedisClusterInfoCache {
 
   private void setNodeIfNotExist(HostAndPort node, Operation op) {
     String nodeKey = node.getNodeKey();
-    if (nodes.containsKey(nodeKey)) {
+    if (nodes.containsKey(nodeKey) && !nodes.get(nodeKey).isClosed()) {
       // JedisFactory jf = (JedisFactory) nodes.get(nodeKey).getInternalPool().getFactory();
       // // when M/S switch , slaves need to be readonly mode, readwrite will exe by redis master;
       // if (jf.getOperation() != op) {
@@ -83,6 +83,7 @@ public class JedisClusterInfoCache {
     return jedisPools;
   }
 
+  // 不能更新slot cache.
   public void reloadSlotShardings(Jedis jedis) {
     String clusterNodes = jedis.clusterNodes();
     HostAndPort current = new HostAndPort(jedis.getClient().getHost(), jedis.getClient().getPort());
@@ -93,16 +94,18 @@ public class JedisClusterInfoCache {
     Map<String, ClusterNodeInformation> nodeInfoMap = ClusterNodeInformationParser.parseAll(
       clusterNodes, current);
     boolean canReloadSlotShardings = false;
+
     for (ClusterNodeInformation newNodeInfo : nodeInfoMap.values()) {
+      ClusterNodeInformation oldNodeInfo = nodeInfomations.get(newNodeInfo.getNodeId());
+      nodeInfomations.put(newNodeInfo.getNodeId(), newNodeInfo);
       if (newNodeInfo.isInactive()) {
         closeConnections(newNodeInfo.getNode().getNodeKey());
         continue;
       }
-      ClusterNodeInformation oldNodeInfo = nodeInfomations.get(newNodeInfo.getNodeId());
-      if (newNodeInfo.isSameSlot(oldNodeInfo) && newNodeInfo.isSameMaster(oldNodeInfo)) {
+      if (newNodeInfo.isSameSlot(oldNodeInfo) && newNodeInfo.isSameMaster(oldNodeInfo)
+          && newNodeInfo.isSameFlags(oldNodeInfo)) {
         continue;
       }
-      nodeInfomations.put(newNodeInfo.getNodeId(), newNodeInfo);
       setNodeIfNotExist(newNodeInfo.getNode(), newNodeInfo.isSlave() ? Operation.READONLY
           : Operation.READWRITE);
       canReloadSlotShardings = true;

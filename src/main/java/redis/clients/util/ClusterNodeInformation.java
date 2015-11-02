@@ -17,15 +17,17 @@ public class ClusterNodeInformation {
   private String[] slotRanges;
   private String nodeId;
   private String slaveOf;
-  private Set<NodeFlag> flags;
+  private EnumSet<NodeFlag> flags;
 
   public boolean isSameMaster(ClusterNodeInformation other) {
+    if (other == null) {
+      return false;
+    }
     return this.slaveOf != null ? this.slaveOf.equals(other.slaveOf) : other.slaveOf == null;
   }
 
   public boolean isSameFlags(ClusterNodeInformation other) {
-    // if flags contains mysql,it's not correct
-    return this.flags.equals(other.flags);
+    return this.flags.equals(other);
   }
 
   // false:failover or masterChanged
@@ -113,7 +115,7 @@ public class ClusterNodeInformation {
       return nodeFlagString;
     }
 
-    public static Set<NodeFlag> parse(String nodeFlagsStr) {
+    public static EnumSet<NodeFlag> parse(String nodeFlagsStr) {
       String[] flags = StringUtils.split(nodeFlagsStr, ',');
       EnumSet<NodeFlag> nodeFlags = EnumSet.noneOf(NodeFlag.class);
       for (String flag : flags) {
@@ -121,6 +123,7 @@ public class ClusterNodeInformation {
       }
       return nodeFlags;
     }
+
   }
 
   public String getNodeId() {
@@ -143,7 +146,7 @@ public class ClusterNodeInformation {
     return flags;
   }
 
-  public void setFlags(Set<NodeFlag> flags) {
+  public void setFlags(EnumSet<NodeFlag> flags) {
     this.flags = flags;
   }
 
