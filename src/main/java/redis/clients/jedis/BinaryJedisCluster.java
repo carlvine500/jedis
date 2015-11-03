@@ -1,5 +1,6 @@
 package redis.clients.jedis;
 
+import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.jedis.JedisClusterInfoCache.SlotState;
 import redis.clients.jedis.commands.BinaryJedisClusterCommands;
 import redis.clients.jedis.commands.JedisClusterBinaryScriptingCommands;
@@ -117,7 +118,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public byte[] get(final byte[] key) {
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.get(key);
@@ -127,7 +128,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long exists(final byte[]... keys) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.exists(keys);
@@ -137,7 +138,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Boolean exists(final byte[] key) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.exists(key);
@@ -157,7 +158,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public String type(final byte[] key) {
-    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<String>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public String execute(Jedis connection) {
         return connection.type(key);
@@ -207,7 +208,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long ttl(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.ttl(key);
@@ -237,7 +238,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Boolean getbit(final byte[] key, final long offset) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.getbit(key, offset);
@@ -257,7 +258,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public byte[] getrange(final byte[] key, final long startOffset, final long endOffset) {
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.getrange(key, startOffset, endOffset);
@@ -357,7 +358,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public byte[] substr(final byte[] key, final int start, final int end) {
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.substr(key, start, end);
@@ -377,7 +378,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public byte[] hget(final byte[] key, final byte[] field) {
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.hget(key, field);
@@ -437,7 +438,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Boolean hexists(final byte[] key, final byte[] field) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.hexists(key, field);
@@ -457,7 +458,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long hlen(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.hlen(key);
@@ -467,7 +468,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> hkeys(final byte[] key) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.hkeys(key);
@@ -477,7 +479,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Collection<byte[]> hvals(final byte[] key) {
-    return new JedisClusterCommand<Collection<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Collection<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Collection<byte[]> execute(Jedis connection) {
         return connection.hvals(key);
@@ -487,7 +490,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Map<byte[], byte[]> hgetAll(final byte[] key) {
-    return new JedisClusterCommand<Map<byte[], byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Map<byte[], byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Map<byte[], byte[]> execute(Jedis connection) {
         return connection.hgetAll(key);
@@ -517,7 +521,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long llen(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.llen(key);
@@ -527,7 +531,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public List<byte[]> lrange(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<List<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<byte[]> execute(Jedis connection) {
         return connection.lrange(key, start, end);
@@ -547,7 +552,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public byte[] lindex(final byte[] key, final long index) {
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.lindex(key, index);
@@ -607,7 +612,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> smembers(final byte[] key) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.smembers(key);
@@ -647,7 +653,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long scard(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.scard(key);
@@ -657,7 +663,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Boolean sismember(final byte[] key, final byte[] member) {
-    return new JedisClusterCommand<Boolean>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Boolean>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Boolean execute(Jedis connection) {
         return connection.sismember(key, member);
@@ -667,7 +673,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public byte[] srandmember(final byte[] key) {
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.srandmember(key);
@@ -677,7 +683,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long strlen(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.strlen(key);
@@ -728,7 +734,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrange(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrange(key, start, end);
@@ -769,7 +776,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zrank(final byte[] key, final byte[] member) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zrank(key, member);
@@ -779,7 +786,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zrevrank(final byte[] key, final byte[] member) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zrevrank(key, member);
@@ -789,7 +796,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrevrange(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrevrange(key, start, end);
@@ -799,7 +807,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<Tuple> zrangeWithScores(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeWithScores(key, start, end);
@@ -809,7 +818,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<Tuple> zrevrangeWithScores(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeWithScores(key, start, end);
@@ -819,7 +829,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zcard(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zcard(key);
@@ -829,7 +839,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Double zscore(final byte[] key, final byte[] member) {
-    return new JedisClusterCommand<Double>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Double>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Double execute(Jedis connection) {
         return connection.zscore(key, member);
@@ -839,7 +849,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public List<byte[]> sort(final byte[] key) {
-    return new JedisClusterCommand<List<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<byte[]> execute(Jedis connection) {
         return connection.sort(key);
@@ -849,7 +860,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public List<byte[]> sort(final byte[] key, final SortingParams sortingParameters) {
-    return new JedisClusterCommand<List<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<byte[]> execute(Jedis connection) {
         return connection.sort(key, sortingParameters);
@@ -859,7 +871,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zcount(final byte[] key, final double min, final double max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zcount(key, min, max);
@@ -869,7 +881,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zcount(final byte[] key, final byte[] min, final byte[] max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zcount(key, min, max);
@@ -879,7 +891,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max);
@@ -889,7 +902,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max);
@@ -899,7 +913,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min);
@@ -910,7 +925,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max, offset, count);
@@ -920,7 +936,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min);
@@ -931,7 +948,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByScore(key, min, max, offset, count);
@@ -942,7 +960,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min, offset, count);
@@ -952,7 +971,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max);
@@ -962,7 +982,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min);
@@ -973,7 +994,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max, offset, count);
@@ -984,7 +1006,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrevrangeByScore(key, max, min, offset, count);
@@ -994,7 +1017,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max);
@@ -1004,7 +1028,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min);
@@ -1015,7 +1040,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrangeByScoreWithScores(key, min, max, offset, count);
@@ -1026,7 +1052,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max,
       final double min, final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
@@ -1037,7 +1064,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max,
       final byte[] min, final int offset, final int count) {
-    return new JedisClusterCommand<Set<Tuple>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<Tuple>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<Tuple> execute(Jedis connection) {
         return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
@@ -1047,7 +1075,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zremrangeByRank(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zremrangeByRank(key, start, end);
@@ -1057,7 +1085,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zremrangeByScore(final byte[] key, final double start, final double end) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zremrangeByScore(key, start, end);
@@ -1067,7 +1095,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zremrangeByScore(final byte[] key, final byte[] start, final byte[] end) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zremrangeByScore(key, start, end);
@@ -1119,7 +1147,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public byte[] echo(final byte[] arg) {
     // note that it'll be run from arbitary node
-    return new JedisClusterCommand<byte[]>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<byte[]>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public byte[] execute(Jedis connection) {
         return connection.echo(arg);
@@ -1129,7 +1157,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long bitcount(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.bitcount(key);
@@ -1139,7 +1167,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long bitcount(final byte[] key, final long start, final long end) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.bitcount(key, start, end);
@@ -1159,7 +1187,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public long pfcount(final byte[] key) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.pfcount(key);
@@ -1169,7 +1197,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public List<byte[]> srandmember(final byte[] key, final int count) {
-    return new JedisClusterCommand<List<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<byte[]> execute(Jedis connection) {
         return connection.srandmember(key, count);
@@ -1179,7 +1208,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long zlexcount(final byte[] key, final byte[] min, final byte[] max) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.zlexcount(key, min, max);
@@ -1189,7 +1218,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByLex(key, min, max);
@@ -1200,7 +1230,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByLex(key, min, max, offset, count);
@@ -1210,7 +1241,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrangeByLex(key, max, min);
@@ -1221,7 +1253,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
   @Override
   public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min,
       final int offset, final int count) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.zrevrangeByLex(key, max, min, offset, count);
@@ -1381,7 +1414,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public List<byte[]> mget(final byte[]... keys) {
-    return new JedisClusterCommand<List<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<List<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public List<byte[]> execute(Jedis connection) {
         return connection.mget(keys);
@@ -1453,7 +1487,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> sdiff(final byte[]... keys) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.sdiff(keys);
@@ -1475,7 +1510,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> sinter(final byte[]... keys) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.sinter(keys);
@@ -1507,7 +1543,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sort(key, sortingParameters, dstkey);
@@ -1517,7 +1553,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Long sort(final byte[] key, final byte[] dstkey) {
-    return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Long>(Operation.READONLY, connectionHandler, maxRedirections) {
       @Override
       public Long execute(Jedis connection) {
         return connection.sort(key, dstkey);
@@ -1527,7 +1563,8 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
 
   @Override
   public Set<byte[]> sunion(final byte[]... keys) {
-    return new JedisClusterCommand<Set<byte[]>>(connectionHandler, maxRedirections) {
+    return new JedisClusterCommand<Set<byte[]>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
       @Override
       public Set<byte[]> execute(Jedis connection) {
         return connection.sunion(keys);
