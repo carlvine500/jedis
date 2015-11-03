@@ -3,6 +3,7 @@ package redis.clients.jedis;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
@@ -23,7 +25,6 @@ public class JedisClusterInfoCache {
   private static final ConcurrentHashMap<String, JedisPool> nodes = new ConcurrentHashMap<String, JedisPool>();
   /** HashMap<slot,Sharding> */
   private final Map<Integer, Sharding> slotShardings;
-
   private final GenericObjectPoolConfig poolConfig;
   private int connectionTimeout;
   private int soTimeout;
@@ -43,6 +44,30 @@ public class JedisClusterInfoCache {
     for (int i = 0; i < BinaryJedisCluster.HASHSLOTS; i++) {
       slotShardings.put(i, new Sharding());
     }
+  }
+
+  public String nextMasterNodeKey(String currentNodeKey) {
+    Iterator<ClusterNodeInformation> iterator = nodeInfomations.values().iterator();
+    while (iterator.hasNext()) {
+      if (StringUtils.isBlank(currentNodeKey)) {
+        return nextMasterNodeKey(iterator);
+      }
+      String tmpNodeId = iterator.next().getNode().getNodeKey();
+      if (StringUtils.equals(currentNodeKey, tmpNodeId)) {
+        return nextMasterNodeKey(iterator);
+      }
+    }
+    return null;
+  }
+
+  private String nextMasterNodeKey(Iterator<ClusterNodeInformation> iterator) {
+    while (iterator.hasNext()) {
+      ClusterNodeInformation tmpNodeInfo = iterator.next();
+      if (tmpNodeInfo.isMaster() && tmpNodeInfo.isActive()) {
+        return tmpNodeInfo.getNode().getNodeKey();
+      }
+    }
+    return null;
   }
 
   /**

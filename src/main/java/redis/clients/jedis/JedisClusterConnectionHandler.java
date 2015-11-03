@@ -38,6 +38,10 @@ public abstract class JedisClusterConnectionHandler {
     return cache.getNodes();
   }
 
+  public String nextMasterNodeKey(String currentNodeId) {
+    return cache.nextMasterNodeKey(currentNodeId);
+  }
+
   private void initializeSlotsCache(Set<HostAndPort> startNodes, GenericObjectPoolConfig poolConfig) {
     for (HostAndPort hostAndPort : startNodes) {
       Jedis jedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());

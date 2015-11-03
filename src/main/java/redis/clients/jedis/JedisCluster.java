@@ -1754,4 +1754,14 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
     }.run(key);
   }
 
+  public ScanClusterResult scanClusterKeys(final String clusterCursor, final String nodeCursor,
+      final ScanParams scanParams) {
+    return new JedisClusterCommand<Object>(connectionHandler, maxRedirections) {
+      @Override
+      public Object execute(Jedis connection) {
+        return null;
+      }
+    }.runWithCursor(clusterCursor, nodeCursor, scanParams);
+  }
+
 }
