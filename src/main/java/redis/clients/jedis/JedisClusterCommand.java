@@ -108,21 +108,29 @@ public abstract class JedisClusterCommand<T> {
       final ScanParams scanParams) {
     Jedis connection = null;
     String nodeKey = clusterCursor;
-    try {
-      if (nodeKey == null || ScanParams.SCAN_POINTER_START.equals(nodeCursor)) {
-        nodeKey = connectionHandler.nextMasterNodeKey(clusterCursor);
-        if (nodeKey == null) {
-          return null;
+    int retryTimes = redirections;
+    for (int i = 0; i < retryTimes; i++) {
+      try {
+        if (nodeKey == null || ScanParams.SCAN_POINTER_START.equals(nodeCursor)) {
+          nodeKey = connectionHandler.nextMasterNodeKey(clusterCursor);
+          if (nodeKey == null) {
+            return null;
+          }
         }
+        connection = connectionHandler.getConnectionFromNode(new HostAndPort(nodeKey));
+        ScanResult<String> scanResult = connection.scan(nodeCursor, scanParams);
+        return new ScanClusterResult(nodeKey, scanResult);
+      } catch (JedisConnectionException e) {
+        if (i < retryTimes - 1) {
+          continue;
+        } else {
+          throw e;
+        }
+      } finally {
+        releaseConnection(connection);
       }
-      connection = connectionHandler.getConnectionFromNode(new HostAndPort(nodeKey));
-      ScanResult<String> scanResult = connection.scan(nodeCursor, scanParams);
-      return new ScanClusterResult(nodeKey, scanResult);
-    } catch (JedisConnectionException e) {
-      throw e;
-    } finally {
-      releaseConnection(connection);
     }
+    return null;
   }
 
   private T runWithRetries(byte[] key, int redirections, boolean tryRandomNode, boolean asking) {

@@ -28,17 +28,21 @@ public class ClusterClusterScanTest {
     GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
     final JedisCluster jc = new JedisCluster(jedisClusterNode, poolConfig);
     for (int i = 0; i < 1000; i++) {
-      jc.set(i + "", "x");
+      // jc.set(i + "", "x");
     }
     ScanParams param = new ScanParams().match("*");
     ScanClusterResult scanClusterKeys = jc.scanClusterKeys(null, ScanParams.SCAN_POINTER_START,
       param);
+    int sum = 0;
     while (scanClusterKeys != null) {
+      sum += scanClusterKeys.getResult().size();
       System.out.println(scanClusterKeys.getClusterCursor() + "==>" + scanClusterKeys.getResult());
       scanClusterKeys = jc.scanClusterKeys(scanClusterKeys.getClusterCursor(),
         scanClusterKeys.getNodeCursor(), param);
 
     }
+    System.out.println(sum);
+
     // final byte[][] bytes = new byte[][] { { 50 }, { 51 }, { 52 } };
     // final byte[] bytes2 = new byte[5];
     // jc.setReadWeight(1, 1);
