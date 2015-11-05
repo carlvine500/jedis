@@ -24,4 +24,8 @@ public class ScanClusterResult {
   public List<String> getResult() {
     return scanResult.getResult();
   }
+
+  public ScanResult<String> getScanResult() {
+    return scanResult;
+  }
 }
