@@ -1754,14 +1754,37 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
     }.run(key);
   }
 
-  public ScanClusterResult scanClusterKeys(final String clusterCursor, final String nodeCursor,
-      final ScanParams scanParams) {
-    return new JedisClusterCommand<Object>(connectionHandler, maxRedirections) {
+  public ScanClusterResult<ScanResult<String>> scanClusterKeys(final String clusterCursor,
+      final String nodeCursor, final ScanParams scanParams) {
+    return new JedisClusterCommand<ScanResult<String>>(connectionHandler, maxRedirections) {
       @Override
-      public Object execute(Jedis connection) {
-        return null;
+      public ScanResult<String> execute(Jedis connection) {
+        return connection.scan(nodeCursor, scanParams);
       }
-    }.runWithCursor(clusterCursor, nodeCursor, scanParams);
+    }.runWithCursor(clusterCursor, nodeCursor);
   }
 
+  /**
+   * example:
+   * 
+   * <pre>
+   * EVAL SCAN_KEY_COUNTER 0 0 * 2048 ==> {"cursor":"56119","count":2048}
+   * </pre>
+   */
+  public static final String SCAN_KEY_COUNTER = new StringBuilder()//
+      .append("local cursor_list = redis.call('scan',ARGV[1], 'match', ARGV[2],'count', ARGV[3]);")//
+      .append("local result = {['cursor']=cursor_list[1],['count']=table.getn(cursor_list[2])};")//
+      .append("return cjson.encode(result);")//
+      .toString();
+
+  public ScanClusterResult<String> scanCountKeys(final String clusterCursor,
+      final String nodeCursor, final String match, final Integer count) {
+    return new JedisClusterCommand<String>(connectionHandler, maxRedirections) {
+      @Override
+      public String execute(Jedis connection) {
+        return (String) connection.eval(SCAN_KEY_COUNTER, 0, new String[] { "" + nodeCursor, match,
+            "" + count });
+      }
+    }.runWithCursor(clusterCursor, nodeCursor);
+  }
 }

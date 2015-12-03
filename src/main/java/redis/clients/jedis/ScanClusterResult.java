@@ -1,31 +1,24 @@
 package redis.clients.jedis;
 
-import java.util.List;
-
-public class ScanClusterResult {
-  public static final String SCAN_POINTER_START = "0";
-  public static final String SCAN_POINTER_END = "-1";
+public class ScanClusterResult<T> {
   private String clusterCursor;
-  private ScanResult<String> scanResult;
+  private T data;
 
-  public ScanClusterResult(String clusterCursor, ScanResult<String> scanResult) {
+  public static <T> ScanClusterResult<T> of(String clusterCursor, T data) {
+    return new ScanClusterResult<T>(clusterCursor, data);
+  }
+
+  public ScanClusterResult(String clusterCursor, T data) {
     this.clusterCursor = clusterCursor;
-    this.scanResult = scanResult;
+    this.data = data;
   }
 
   public String getClusterCursor() {
     return clusterCursor;
   }
 
-  public String getNodeCursor() {
-    return scanResult.getCursor();
+  public T getData() {
+    return data;
   }
 
-  public List<String> getResult() {
-    return scanResult.getResult();
-  }
-
-  public ScanResult<String> getScanResult() {
-    return scanResult;
-  }
 }

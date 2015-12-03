@@ -104,8 +104,7 @@ public abstract class JedisClusterCommand<T> {
     }
   }
 
-  public ScanClusterResult runWithCursor(final String clusterCursor, final String nodeCursor,
-      final ScanParams scanParams) {
+  public ScanClusterResult<T> runWithCursor(final String clusterCursor, final String nodeCursor) {
     Jedis connection = null;
     String nodeKey = clusterCursor;
     int retryTimes = redirections;
@@ -118,8 +117,8 @@ public abstract class JedisClusterCommand<T> {
           }
         }
         connection = connectionHandler.getConnectionFromNode(new HostAndPort(nodeKey));
-        ScanResult<String> scanResult = connection.scan(nodeCursor, scanParams);
-        return new ScanClusterResult(nodeKey, scanResult);
+        T data = execute(connection);
+        return ScanClusterResult.of(nodeKey, data);
       } catch (JedisConnectionException e) {
         if (i < retryTimes - 1) {
           continue;
