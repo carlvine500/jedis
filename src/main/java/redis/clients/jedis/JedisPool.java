@@ -108,15 +108,23 @@ public class JedisPool extends JedisPoolAbstract {
     return jedis;
   }
 
+  /***
+   * please use Jedis.close();
+   */
+  @Deprecated
   @Override
-  protected void returnBrokenResource(final Jedis resource) {
+  public void returnBrokenResource(final Jedis resource) {
     if (resource != null) {
       returnBrokenResourceObject(resource);
     }
   }
 
+  /***
+   * please use Jedis.close();
+   */
+  @Deprecated
   @Override
-  protected void returnResource(final Jedis resource) {
+  public void returnResource(final Jedis resource) {
     if (resource != null) {
       try {
         resource.resetState();

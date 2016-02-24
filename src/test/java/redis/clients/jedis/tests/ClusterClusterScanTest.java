@@ -14,6 +14,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.ScanClusterResult;
 import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 public class ClusterClusterScanTest {
 
@@ -32,14 +33,15 @@ public class ClusterClusterScanTest {
       System.out.println(i);
     }
     ScanParams param = new ScanParams().match("0:*");
-    ScanClusterResult scanClusterKeys = jc.scanClusterKeys(null, ScanParams.SCAN_POINTER_START,
-      param);
+    ScanClusterResult<ScanResult<String>> scanClusterKeys = jc.scanClusterKeys(null,
+      ScanParams.SCAN_POINTER_START, param);
     int sum = 0;
     while (scanClusterKeys != null) {
-      sum += scanClusterKeys.getResult().size();
-      System.out.println(scanClusterKeys.getClusterCursor() + "==>" + scanClusterKeys.getResult());
-      scanClusterKeys = jc.scanClusterKeys(scanClusterKeys.getClusterCursor(),
-        scanClusterKeys.getNodeCursor(), param);
+      sum += scanClusterKeys.getData().getResult().size();
+      System.out.println(scanClusterKeys.getClusterCursor() + "==>"
+          + scanClusterKeys.getData().getResult());
+      scanClusterKeys = jc.scanClusterKeys(scanClusterKeys.getClusterCursor(), scanClusterKeys
+          .getData().getCursor(), param);
 
     }
     System.out.println(sum);

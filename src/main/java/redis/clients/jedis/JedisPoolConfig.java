@@ -10,4 +10,22 @@ public class JedisPoolConfig extends GenericObjectPoolConfig {
     setTimeBetweenEvictionRunsMillis(30000);
     setNumTestsPerEvictionRun(-1);
   }
+
+  /**
+   * please use setMaxTotal(...)
+   * @param maxActive
+   */
+  @Deprecated
+  public void setMaxActive(int maxActive) {
+    setMaxTotal(maxActive);
+  }
+
+  /**
+   * please use setMaxWaitMillis(...)
+   * @param maxWait
+   */
+  @Deprecated
+  public void setMaxWait(long maxWait) {
+    setMaxWaitMillis(maxWait);
+  }
 }
