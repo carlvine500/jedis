@@ -217,4 +217,6 @@ public interface RedisPipeline {
   Response<Long> pfcount(final String key);
 
   Response<Long> waitReplicas(String key, int replicas, long timeout);
+
+  Response<String> debugObject(String key);
 }
