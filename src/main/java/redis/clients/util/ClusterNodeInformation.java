@@ -26,7 +26,7 @@ public class ClusterNodeInformation {
   }
 
   public boolean isSameFlags(ClusterNodeInformation other) {
-    return this.flags.equals(other);
+    return this.flags.equals(other.getFlags());
   }
 
   // false:failover or masterChanged

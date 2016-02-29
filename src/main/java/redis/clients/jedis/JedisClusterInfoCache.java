@@ -17,6 +17,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.util.ClusterNodeInformation;
 import redis.clients.util.ClusterNodeInformationParser;
+import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
 public class JedisClusterInfoCache {
   /** HashMap<nodeId,ClusterNodeInformation> */
@@ -121,6 +122,7 @@ public class JedisClusterInfoCache {
     boolean canReloadSlotShardings = false;
 
     for (ClusterNodeInformation newNodeInfo : nodeInfoMap.values()) {
+      newNodeInfo.getFlags().remove(NodeFlag.MYSELF);
       ClusterNodeInformation oldNodeInfo = nodeInfomations.get(newNodeInfo.getNodeId());
       nodeInfomations.put(newNodeInfo.getNodeId(), newNodeInfo);
       if (newNodeInfo.isInactive()) {
@@ -131,8 +133,10 @@ public class JedisClusterInfoCache {
           && newNodeInfo.isSameFlags(oldNodeInfo)) {
         continue;
       }
-      setNodeIfNotExist(newNodeInfo.getNode(), newNodeInfo.isSlave() ? Operation.READONLY
-          : Operation.READWRITE);
+      if (newNodeInfo.isMaster() && newNodeInfo.getSlotRanges().length == 0) {
+        continue;
+      }
+      setNodeIfNotExist(newNodeInfo.getNode(), Operation.READONLY);
       canReloadSlotShardings = true;
     }
 
