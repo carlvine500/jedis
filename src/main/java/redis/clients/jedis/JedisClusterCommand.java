@@ -152,7 +152,9 @@ public abstract class JedisClusterCommand<T> {
         if (tryRandomNode) {
           connection = connectionHandler.getConnection();
         } else {
-          connection = connectionHandler.getConnectionFromSlot(op, JedisClusterCRC16.getSlot(key));
+          connection = connectionHandler.getConnectionFromSlot(//
+            this.redirections == redirections ? op : Operation.READWRITE,//
+            JedisClusterCRC16.getSlot(key));
         }
       }
 
@@ -165,8 +167,8 @@ public abstract class JedisClusterCommand<T> {
 
       // release current connection before recursion
       releaseConnection(connection);
-      connection = null;
 
+      connection = null;
       // retry with random connection
       return runWithRetries(key, redirections - 1, true, asking);
     } catch (JedisRedirectionException jre) {

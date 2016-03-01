@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
@@ -43,9 +44,12 @@ public abstract class JedisClusterConnectionHandler {
   }
 
   private void initializeSlotsCache(Set<HostAndPort> startNodes, GenericObjectPoolConfig poolConfig) {
-    for (HostAndPort hostAndPort : startNodes) {
-      Jedis jedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
+    for (@SuppressWarnings("unused")
+    HostAndPort x : startNodes) {
+      Jedis jedis = null;
       try {
+        HostAndPort hostAndPort = getRandomNode(startNodes);
+        jedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
         // cache.discoverClusterNodesAndSlots(jedis);
         cache.reloadSlotShardings(jedis);
         break;
@@ -61,6 +65,18 @@ public abstract class JedisClusterConnectionHandler {
     for (HostAndPort node : startNodes) {
       cache.setNodeIfNotExist(node);
     }
+  }
+
+  private HostAndPort getRandomNode(Set<HostAndPort> startNodes) {
+    int nextInt = RandomUtils.nextInt(0, startNodes.size());
+    int i = 0;
+    for (HostAndPort hostAndPort : startNodes) {
+      if (nextInt == i) {
+        return hostAndPort;
+      }
+      i++;
+    }
+    return getRandomNode(startNodes);
   }
 
   public void renewSlotCache() {

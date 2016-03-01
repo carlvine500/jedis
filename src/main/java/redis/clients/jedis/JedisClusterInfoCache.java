@@ -109,7 +109,6 @@ public class JedisClusterInfoCache {
     return jedisPools;
   }
 
-  // 不能更新slot cache.
   public void reloadSlotShardings(Jedis jedis) {
     String clusterNodes = jedis.clusterNodes();
     HostAndPort current = new HostAndPort(jedis.getClient().getHost(), jedis.getClient().getPort());
