@@ -22,6 +22,9 @@ public class ClusterNodeInformationParser {
     Map<String, List<String>> masterSlaves = new HashMap<String, List<String>>();
     for (ClusterNodeInformation nodeInfo : nodeInfos.values()) {
       String masterNodeId = null;
+      if (nodeInfo.isInactive()) {
+        continue;
+      }
       if (nodeInfo.isSlave()) {
         masterNodeId = nodeInfos.get(nodeInfo.getSlaveOf()).getNodeId();
       } else if (nodeInfo.isMaster()) {
