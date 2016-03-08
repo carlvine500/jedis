@@ -6,12 +6,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
 import redis.clients.jedis.JedisClusterInfoCache.SlotState;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.loadbanlance.ClusterLoadBanlance;
 
 public abstract class JedisClusterConnectionHandler {
   protected final JedisClusterInfoCache cache;
@@ -44,11 +44,9 @@ public abstract class JedisClusterConnectionHandler {
   }
 
   private void initializeSlotsCache(Set<HostAndPort> startNodes, GenericObjectPoolConfig poolConfig) {
-    for (@SuppressWarnings("unused")
-    HostAndPort x : startNodes) {
+    for (HostAndPort hostAndPort : startNodes) {
       Jedis jedis = null;
       try {
-        HostAndPort hostAndPort = getRandomNode(startNodes);
         jedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
         // cache.discoverClusterNodesAndSlots(jedis);
         cache.reloadSlotShardings(jedis);
@@ -65,18 +63,6 @@ public abstract class JedisClusterConnectionHandler {
     for (HostAndPort node : startNodes) {
       cache.setNodeIfNotExist(node);
     }
-  }
-
-  private HostAndPort getRandomNode(Set<HostAndPort> startNodes) {
-    int nextInt = RandomUtils.nextInt(0, startNodes.size());
-    int i = 0;
-    for (HostAndPort hostAndPort : startNodes) {
-      if (nextInt == i) {
-        return hostAndPort;
-      }
-      i++;
-    }
-    return getRandomNode(startNodes);
   }
 
   public void renewSlotCache() {
@@ -109,18 +95,19 @@ public abstract class JedisClusterConnectionHandler {
     cache.closeConnections(nodeKey);
   }
 
-  public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
-    cache.setReadWeight(masterReadWeight, slaveReadWeight);
+  public void setClusterLoadBanlance(ClusterLoadBanlance clusterLoadBanlance) {
+    cache.setClusterLoadBanlance(clusterLoadBanlance);
   }
 
-  private static class SingletonHolder {
-    private static final ScheduledExecutorService pool = Executors
-        .newSingleThreadScheduledExecutor();
+  public void removeClusterLoadBanlance() {
+    cache.removeClusterLoadBanlance();
   }
+
+  ScheduledExecutorService pool;
 
   public void startSlotCacheMonitor() {
-    SingletonHolder.pool.scheduleWithFixedDelay(new Runnable() {
-
+    pool = Executors.newSingleThreadScheduledExecutor();
+    pool.scheduleWithFixedDelay(new Runnable() {
       @Override
       public void run() {
         renewSlotCache();

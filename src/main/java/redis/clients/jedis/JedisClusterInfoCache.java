@@ -2,6 +2,7 @@ package redis.clients.jedis;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -10,16 +11,18 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.JedisClusterCommand.Operation;
+import redis.clients.jedis.loadbanlance.ClusterLoadBanlance;
+import redis.clients.jedis.loadbanlance.DefaultLoadBanlance;
 import redis.clients.util.ClusterNodeInformation;
-import redis.clients.util.ClusterNodeInformationParser;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
+import redis.clients.util.ClusterNodeInformationParser;
 
 public class JedisClusterInfoCache {
+  private ThreadLocal<ClusterLoadBanlance> loadBanlanceHolder = new ThreadLocal<ClusterLoadBanlance>();
   /** HashMap<nodeId,ClusterNodeInformation> */
   private final Map<String, ClusterNodeInformation> nodeInfomations = new HashMap<String, ClusterNodeInformation>();
   /** ConcurrentHashMap<host:port,Object> , it's shared by many clusters . */
@@ -29,8 +32,6 @@ public class JedisClusterInfoCache {
   private final GenericObjectPoolConfig poolConfig;
   private int connectionTimeout;
   private int soTimeout;
-  private volatile int masterReadWeight = 1;
-  private volatile int slaveReadWeight = 0;
 
   public JedisClusterInfoCache(final GenericObjectPoolConfig poolConfig, int timeout) {
     this(poolConfig, timeout, timeout);
@@ -45,6 +46,14 @@ public class JedisClusterInfoCache {
     for (int i = 0; i < BinaryJedisCluster.HASHSLOTS; i++) {
       slotShardings.put(i, new Sharding());
     }
+  }
+
+  public void setClusterLoadBanlance(ClusterLoadBanlance clusterLoadBanlance) {
+    loadBanlanceHolder.set(clusterLoadBanlance);
+  }
+
+  public void removeClusterLoadBanlance() {
+    loadBanlanceHolder.remove();
   }
 
   public String nextMasterNodeKey(String currentNodeKey) {
@@ -107,6 +116,20 @@ public class JedisClusterInfoCache {
       jedisPools.put(nodeKey, nodes.get(nodeKey));
     }
     return jedisPools;
+  }
+
+  public List<JedisPool> getShuffledMasterNodesPool() {
+    Collection<ClusterNodeInformation> values = nodeInfomations.values();
+    List<JedisPool> list = new ArrayList<JedisPool>();
+    for (ClusterNodeInformation nodeInfo : values) {
+      if (!nodeInfo.isMaster()|| nodeInfo.getSlotRanges().length == 0) {
+        continue;
+      }
+      String nodeKey = nodeInfo.getNode().getNodeKey();
+      list.add(nodes.get(nodeKey));
+    }
+    Collections.shuffle(list);
+    return list;
   }
 
   public void reloadSlotShardings(Jedis jedis) {
@@ -188,31 +211,11 @@ public class JedisClusterInfoCache {
   }
 
   public JedisPool getReadJedisPool(Sharding sharding) {
-    List<JedisPool> list = sharding.slaves;
-    if (list.isEmpty()) {
-      return sharding.getMaster();
+    ClusterLoadBanlance loadBanlance = loadBanlanceHolder.get();
+    if (loadBanlance == null) {
+      return DefaultLoadBanlance.getSingleton().getReadJedisPool(sharding);
     }
-    int size = list.size();
-    int index = RandomUtils.nextInt(0, masterReadWeight + slaveReadWeight * size);
-    if (index < masterReadWeight) {
-      return sharding.getMaster();
-    }
-    JedisPool jedisPool = list.get((index - masterReadWeight) / slaveReadWeight);
-    if (jedisPool.isClosed()) {
-      list.remove(jedisPool);
-      return getReadJedisPool(sharding);
-    }
-    return jedisPool;
-  }
-
-  public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
-    if ((masterReadWeight + slaveReadWeight) == 0//
-        || masterReadWeight < 0//
-        || slaveReadWeight < 0) {
-      throw new IllegalArgumentException("masterReadWeight slaveReadWeight set error");
-    }
-    this.masterReadWeight = masterReadWeight;
-    this.slaveReadWeight = slaveReadWeight;
+    return loadBanlance.getReadJedisPool(sharding);
   }
 
   public void setSlotState(int slot, SlotState slotState) {

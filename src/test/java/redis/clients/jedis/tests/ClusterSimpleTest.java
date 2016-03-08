@@ -9,6 +9,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.loadbanlance.RandomLoadBanlance;
 
 import com.taobao.stresstester.StressTestUtils;
 import com.taobao.stresstester.core.StressTask;
@@ -21,7 +22,7 @@ public class ClusterSimpleTest {
    */
   public static void main(String[] args) throws Exception {
     Set<HostAndPort> jedisClusterNode = new HashSet<HostAndPort>();
-    jedisClusterNode.add(new HostAndPort("10.58.47.91", 8300));
+    jedisClusterNode.add(new HostAndPort("10.58.56.91", 8301));
 
     GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
     poolConfig.setMinIdle(128);
@@ -29,15 +30,14 @@ public class ClusterSimpleTest {
     poolConfig.setMaxTotal(128);
     poolConfig.setTestWhileIdle(true);
     final JedisCluster jc = new JedisCluster(jedisClusterNode, poolConfig);
-    jc.setReadWeight(1, 1);
+    jc.setClusterLoadBanlance(new RandomLoadBanlance(1, 1));
     // Thread.sleep(1000000000000L);
-    // String s = jc.get("b");
+    String s = jc.get("b");
     final AtomicLong i = new AtomicLong();
-    StressTestUtils.testAndPrint(800, 1000 * 10000, new StressTask() {
-
+    StressTestUtils.testAndPrint(800, 100 * 10000, new StressTask() {
       @Override
       public Object doTask() throws Exception {
-        jc.set(i + "", "xxx");
+        jc.set(i.incrementAndGet() + "", "xxx");
         return null;
       }
     });

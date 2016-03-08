@@ -27,7 +27,7 @@ public class ClusterConcurrentTest {
     poolConfig.setMaxTotal(500);
     final JedisCluster jc = new JedisCluster(jedisClusterNode, poolConfig);
     final byte[][] bytes = new byte[][] { { 50 }, { 51 }, { 52 } };
-    final byte[] bytes2 = new byte[10 * 1024];// 10bytes 41943.887--QPS 1kb 8974.129--QPS 10kb
+    final byte[] bytes2 = new byte[1000];// 10bytes 41943.887--QPS 1kb 8974.129--QPS 10kb
                                               // 949.2576--QPS avg=421.38193 ms
     final byte[] bytes3 = "b".getBytes();
     jc.set(bytes3, bytes2);

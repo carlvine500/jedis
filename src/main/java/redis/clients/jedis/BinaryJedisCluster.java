@@ -6,6 +6,7 @@ import redis.clients.jedis.commands.BinaryJedisClusterCommands;
 import redis.clients.jedis.commands.JedisClusterBinaryScriptingCommands;
 import redis.clients.jedis.commands.MultiExecutor;
 import redis.clients.jedis.commands.MultiKeyBinaryJedisClusterCommands;
+import redis.clients.jedis.loadbanlance.ClusterLoadBanlance;
 import redis.clients.jedis.params.set.SetParams;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
@@ -84,8 +85,12 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     connectionHandler.closeConnections(nodeKey);
   }
 
-  public void setReadWeight(int masterReadWeight, int slaveReadWeight) {
-    connectionHandler.setReadWeight(masterReadWeight, slaveReadWeight);
+  public void setClusterLoadBanlance(ClusterLoadBanlance clusterLoadBanlance) {
+    connectionHandler.setClusterLoadBanlance(clusterLoadBanlance);
+  }
+
+  public void removeClusterLoadBanlance() {
+    connectionHandler.removeClusterLoadBanlance();
   }
 
   public HostAndPort getMasterHostAndPort(int slot) {
