@@ -24,7 +24,7 @@ import redis.clients.util.ClusterNodeInformationParser;
 public class JedisClusterInfoCache {
   private ThreadLocal<ClusterLoadBanlance> loadBanlanceHolder = new ThreadLocal<ClusterLoadBanlance>();
   /** HashMap<nodeId,ClusterNodeInformation> */
-  private final Map<String, ClusterNodeInformation> nodeInfomations = new HashMap<String, ClusterNodeInformation>();
+  private final ConcurrentHashMap<String, ClusterNodeInformation> nodeInfomations = new ConcurrentHashMap<String, ClusterNodeInformation>();
   /** ConcurrentHashMap<host:port,Object> , it's shared by many clusters . */
   private static final ConcurrentHashMap<String, JedisPool> nodes = new ConcurrentHashMap<String, JedisPool>();
   /** HashMap<slot,Sharding> */
@@ -122,7 +122,7 @@ public class JedisClusterInfoCache {
     Collection<ClusterNodeInformation> values = nodeInfomations.values();
     List<JedisPool> list = new ArrayList<JedisPool>();
     for (ClusterNodeInformation nodeInfo : values) {
-      if (!nodeInfo.isMaster()|| nodeInfo.getSlotRanges().length == 0) {
+      if (!nodeInfo.isMaster() || nodeInfo.getSlotRanges().length == 0) {
         continue;
       }
       String nodeKey = nodeInfo.getNode().getNodeKey();
@@ -146,11 +146,12 @@ public class JedisClusterInfoCache {
     for (ClusterNodeInformation newNodeInfo : nodeInfoMap.values()) {
       newNodeInfo.getFlags().remove(NodeFlag.MYSELF);
       ClusterNodeInformation oldNodeInfo = nodeInfomations.get(newNodeInfo.getNodeId());
-      nodeInfomations.put(newNodeInfo.getNodeId(), newNodeInfo);
       if (newNodeInfo.isInactive()) {
+        nodeInfomations.remove(newNodeInfo.getNodeId());
         closeConnections(newNodeInfo.getNode().getNodeKey());
         continue;
       }
+      nodeInfomations.put(newNodeInfo.getNodeId(), newNodeInfo);
       if (newNodeInfo.isSameSlot(oldNodeInfo) && newNodeInfo.isSameMaster(oldNodeInfo)
           && newNodeInfo.isSameFlags(oldNodeInfo)) {
         continue;
