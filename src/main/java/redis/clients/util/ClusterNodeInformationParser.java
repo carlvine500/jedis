@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import redis.clients.jedis.HostAndPort;
 import redis.clients.util.ClusterNodeInformation.NodeFlag;
 
@@ -25,7 +27,7 @@ public class ClusterNodeInformationParser {
       if (nodeInfo.isInactive()) {
         continue;
       }
-      if (nodeInfo.isSlave()) {
+      if (nodeInfo.isSlave() && StringUtils.isNotBlank(nodeInfo.getSlaveOf())) {
         masterNodeId = nodeInfos.get(nodeInfo.getSlaveOf()).getNodeId();
       } else if (nodeInfo.isMaster()) {
         masterNodeId = nodeInfo.getNodeId();

@@ -4,6 +4,7 @@ import redis.clients.jedis.exceptions.JedisAskDataException;
 import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.exceptions.JedisClusterMaxRedirectionsException;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisLinkDownWithMasterException;
 import redis.clients.jedis.exceptions.JedisMovedDataException;
 import redis.clients.jedis.exceptions.JedisRedirectionException;
 import redis.clients.util.JedisClusterCRC16;
@@ -169,6 +170,10 @@ public abstract class JedisClusterCommand<T> {
       releaseConnection(connection);
 
       connection = null;
+      if (jce instanceof JedisLinkDownWithMasterException) {
+        this.connectionHandler.renewSlotCache();
+        return runWithRetries(key, redirections - 1, false, asking);
+      }
       // retry with random connection
       return runWithRetries(key, redirections - 1, true, asking);
     } catch (JedisRedirectionException jre) {
@@ -191,7 +196,6 @@ public abstract class JedisClusterCommand<T> {
       } else {
         throw new JedisClusterException(jre);
       }
-
       return runWithRetries(key, redirections - 1, false, asking);
     } finally {
       releaseConnection(connection);

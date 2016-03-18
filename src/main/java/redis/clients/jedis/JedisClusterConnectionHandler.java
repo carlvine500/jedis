@@ -1,5 +1,6 @@
 package redis.clients.jedis;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -66,15 +67,22 @@ public abstract class JedisClusterConnectionHandler {
   }
 
   public void renewSlotCache() {
-    Jedis jedis = null;
-    try {
-      jedis = getConnection();
-      // cache.discoverClusterSlots(jedis);
-      cache.reloadSlotShardings(jedis);
-      // try next nodes
-    } finally {
-      if (jedis != null) {
-        jedis.close();
+    List<JedisPool> pools = cache.getShuffledMasterNodesPool();
+    for (JedisPool pool : pools) {
+      Jedis jedis = null;
+      try {
+        jedis = pool.getResource();
+        if (jedis == null) {
+          continue;
+        }
+        cache.reloadSlotShardings(jedis);
+        break;
+      } catch (JedisConnectionException ex) {
+        // try next node
+      } finally {
+        if (jedis != null) {
+          jedis.close();
+        }
       }
     }
   }

@@ -60,7 +60,17 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
     if (connectionPool != null) {
       // It can't guaranteed to get valid connection because of node
       // assignment
-      Jedis resource = connectionPool.getResource();
+      Jedis resource = null;
+      try {
+        resource = connectionPool.getResource();
+      } catch (Exception e) {
+        // master down ,try slave,slave down try master
+        if (connectionPool == cache.getMaster(slot)) {
+          return cache.tryGetOneSlave(slot).getResource();
+        } else {
+          return cache.getMaster(slot).getResource();
+        }
+      }
       return resource;
     } else {
       return getConnection();

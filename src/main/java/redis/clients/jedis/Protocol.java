@@ -9,6 +9,7 @@ import redis.clients.jedis.exceptions.JedisAskDataException;
 import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.exceptions.JedisLinkDownWithMasterException;
 import redis.clients.jedis.exceptions.JedisLoadingDatasetInMemoryException;
 import redis.clients.jedis.exceptions.JedisMovedDataException;
 import redis.clients.jedis.exceptions.JedisTargetKeyNameExistsException;
@@ -19,6 +20,7 @@ import redis.clients.util.SafeEncoder;
 public final class Protocol {
 
   private static final String LOADING_DATASET_IN_MEMORY = "LOADING";
+  private static final String MASTERDOWN_LINK_WITH_MASTER_IS_DOWN = "MASTERDOWN Link with MASTER is down";
   private static final String TARGET_KEY_NAME_ALREADY_EXISTS = "Target key name already exists";
   private static final String ASK_RESPONSE = "ASK";
   private static final String MOVED_RESPONSE = "MOVED";
@@ -116,6 +118,8 @@ public final class Protocol {
       String[] askInfo = parseTargetHostAndSlot(message);
       throw new JedisAskDataException(message, new HostAndPort(askInfo[1],
           Integer.valueOf(askInfo[2])), Integer.valueOf(askInfo[0]));
+    } else if (message.startsWith(MASTERDOWN_LINK_WITH_MASTER_IS_DOWN)) {
+      throw new JedisLinkDownWithMasterException(message);
     } else if (message.startsWith(LOADING_DATASET_IN_MEMORY)) {
       throw new JedisLoadingDatasetInMemoryException(message);
     } else if (message.contains(TARGET_KEY_NAME_ALREADY_EXISTS)) {

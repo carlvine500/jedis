@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
@@ -193,6 +194,15 @@ public class JedisClusterInfoCache {
 
   public JedisPool getMaster(int slot) {
     return slotShardings.get(slot).master;
+  }
+
+  public JedisPool tryGetOneSlave(int slot) {
+    Sharding sharding = slotShardings.get(slot);
+    List<JedisPool> list = sharding.getSlaves();
+    if (list.isEmpty()) {
+      return sharding.getMaster();
+    }
+    return list.get(RandomUtils.nextInt(0, list.size()));
   }
 
   public HostAndPort getMasterHostAndPort(int slot) {
