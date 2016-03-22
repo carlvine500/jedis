@@ -171,7 +171,6 @@ public abstract class JedisClusterCommand<T> {
 
       connection = null;
       if (jce instanceof JedisLinkDownWithMasterException) {
-        this.connectionHandler.renewSlotCache();
         return runWithRetries(key, redirections - 1, false, asking);
       }
       // retry with random connection
