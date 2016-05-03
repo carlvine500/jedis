@@ -67,6 +67,7 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
         }
       }
     }
+    connectionHandler.shutdown();
   }
 
   public void startSlotCacheMonitor() {

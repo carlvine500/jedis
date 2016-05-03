@@ -127,4 +127,8 @@ public abstract class JedisClusterConnectionHandler {
     return cache.getSlavesCount(slot);
   }
 
+  public void shutdown() {
+    pool.shutdown();
+  }
+
 }
