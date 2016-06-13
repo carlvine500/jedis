@@ -78,6 +78,10 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     return connectionHandler.getNodes();
   }
 
+  public String getCachedNodeInfos() {
+    return connectionHandler.getCachedNodeInfos();
+  }
+
   public void setSlotState(int slot, SlotState slotState) {
     connectionHandler.setSlotState(slot, slotState);
   }

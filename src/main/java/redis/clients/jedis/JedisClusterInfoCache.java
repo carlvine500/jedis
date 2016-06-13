@@ -49,6 +49,17 @@ public class JedisClusterInfoCache {
     }
   }
 
+  public String getCachedNodeInfos() {
+    StringBuilder sb = new StringBuilder();
+    for (ClusterNodeInformation nodeInfo : nodeInfomations.values()) {
+      sb.append(nodeInfo.getNodeId()).append(" ");
+      sb.append(nodeInfo.getNode().getNodeKey()).append(" ");
+      sb.append(StringUtils.join(nodeInfo.getFlags(), ",")).append(" ");
+      sb.append(StringUtils.join(nodeInfo.getSlotRanges(), " ")).append("\r\n");
+    }
+    return sb.toString();
+  }
+
   public void setClusterLoadBanlance(ClusterLoadBanlance clusterLoadBanlance) {
     loadBanlanceHolder.set(clusterLoadBanlance);
   }
