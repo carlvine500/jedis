@@ -13,6 +13,7 @@ import redis.clients.jedis.commands.JedisClusterCommands;
 import redis.clients.jedis.commands.JedisClusterScriptingCommands;
 import redis.clients.jedis.commands.MultiExecutor;
 import redis.clients.jedis.commands.MultiKeyJedisClusterCommands;
+import redis.clients.jedis.commands.PipelineExecutor;
 import redis.clients.jedis.params.set.SetParams;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
@@ -1699,6 +1700,31 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
         Transaction t = connection.multi();
         executor.exec(key, t);
         return t.exec();
+      }
+    }.run(key);
+  }
+
+  // @Override
+  public List<Object> pipelineRead(final String key, final PipelineExecutor<String> executor) {
+    return new JedisClusterCommand<List<Object>>(Operation.READONLY, connectionHandler,
+        maxRedirections) {
+      @Override
+      public List<Object> execute(Jedis connection) {
+        Pipeline p = connection.pipelined();
+        executor.exec(key, p);
+        return p.syncAndReturnAll();
+      }
+    }.run(key);
+  }
+
+  // @Override
+  public List<Object> pipelineWrite(final String key, final PipelineExecutor<String> executor) {
+    return new JedisClusterCommand<List<Object>>(connectionHandler, maxRedirections) {
+      @Override
+      public List<Object> execute(Jedis connection) {
+        Pipeline p = connection.pipelined();
+        executor.exec(key, p);
+        return p.syncAndReturnAll();
       }
     }.run(key);
   }

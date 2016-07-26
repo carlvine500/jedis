@@ -1,5 +1,8 @@
 package redis.clients.jedis;
 
+// import org.apache.logging.log4j.LogManager;
+// import org.apache.logging.log4j.Logger;
+
 import redis.clients.jedis.exceptions.JedisAskDataException;
 import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.exceptions.JedisClusterMaxRedirectionsException;
@@ -16,6 +19,8 @@ public abstract class JedisClusterCommand<T> {
   private int redirections;
   private ThreadLocal<Jedis> askConnection = new ThreadLocal<Jedis>();
   private Operation op = Operation.READWRITE;
+
+  // private static Logger logger = LogManager.getLogger(JedisClusterCommand.class);
 
   public JedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxRedirections) {
     this.connectionHandler = connectionHandler;
@@ -165,7 +170,7 @@ public abstract class JedisClusterCommand<T> {
         // maybe all connection is down
         throw jce;
       }
-
+      // logger.error("jedis skipedException,node="+connection.getClient().getHost()+":"+connection.getClient().getPort(),jce);
       // release current connection before recursion
       releaseConnection(connection);
 
