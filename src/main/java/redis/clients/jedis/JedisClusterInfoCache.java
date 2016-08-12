@@ -144,6 +144,19 @@ public class JedisClusterInfoCache {
     return list;
   }
 
+  public List<HostAndPort> getShuffledMasterHostAndPorts() {
+    Collection<ClusterNodeInformation> values = nodeInfomations.values();
+    List<HostAndPort> list = new ArrayList<HostAndPort>();
+    for (ClusterNodeInformation nodeInfo : values) {
+      if (!nodeInfo.isMaster() || nodeInfo.getSlotRanges().length == 0) {
+        continue;
+      }
+      list.add(nodeInfo.getNode());
+    }
+    Collections.shuffle(list);
+    return list;
+  }
+
   public void reloadSlotShardings(Jedis jedis) {
     String clusterNodes = jedis.clusterNodes();
     HostAndPort current = new HostAndPort(jedis.getClient().getHost(), jedis.getClient().getPort());

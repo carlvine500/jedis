@@ -76,7 +76,23 @@ public abstract class JedisClusterConnectionHandler {
           continue;
         }
         cache.reloadSlotShardings(jedis);
-        break;
+        return;
+      } catch (JedisConnectionException ex) {
+        // try next node
+      } finally {
+        if (jedis != null) {
+          jedis.close();
+        }
+      }
+    }
+    // maybe all JedisPool are closed
+    List<HostAndPort> hostAndPorts = cache.getShuffledMasterHostAndPorts();
+    for (HostAndPort hostAndPort : hostAndPorts) {
+      Jedis jedis = null;
+      try {
+        jedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
+        cache.reloadSlotShardings(jedis);
+        return;
       } catch (JedisConnectionException ex) {
         // try next node
       } finally {
