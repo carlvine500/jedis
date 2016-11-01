@@ -144,7 +144,9 @@ public abstract class JedisClusterConnectionHandler {
   }
 
   public void shutdown() {
-    pool.shutdown();
+    if (pool != null) {
+      pool.shutdown();
+    }
   }
 
   public String getCachedNodeInfos() {

@@ -260,6 +260,12 @@ public class JedisClusterInfoCache {
   public void closeConnections(String nodeKey) {
     JedisPool jedisPool = nodes.get(nodeKey);
     if (jedisPool != null) {
+      for (ClusterNodeInformation nodeInfo : nodeInfomations.values()) {
+        if (nodeInfo.getNode().getNodeKey().equals(nodeKey) && //
+            nodeInfo.getSlotRanges().length != 0) {
+          return;
+        }
+      }
       jedisPool.close();
     }
   }
