@@ -1545,7 +1545,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       }
     }.runWithAnyNode();
   }
-  
+
   @Override
   public Long publishOne(final String channel, final String message) {
     return new JedisClusterCommand<Long>(connectionHandler, maxRedirections) {
@@ -1566,13 +1566,14 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
       }
     }.runWithAnyNode();
   }
-  
+
   @Override
-  public void subscribeOne(final JedisPubSub jedisPubSub, final String channel,final int timeoutMilliSeconds) {
+  public void subscribeOne(final JedisPubSub jedisPubSub, final String channel,
+      final int timeoutMilliSeconds) {
     new JedisClusterCommand<Integer>(connectionHandler, maxRedirections) {
       @Override
       public Integer execute(Jedis connection) {
-        connection.subscribeOne(jedisPubSub, channel,timeoutMilliSeconds);
+        connection.subscribeOne(jedisPubSub, channel, timeoutMilliSeconds);
         return 0;
       }
     }.run(channel);

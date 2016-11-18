@@ -2748,9 +2748,10 @@ public class Jedis extends BinaryJedis implements JedisCommands, MultiKeyCommand
       client.rollbackTimeout();
     }
   }
-  
+
   @Override
-  public void subscribeOne(final JedisPubSub jedisPubSub, final String channel,final int timeoutMilliSeconds) {
+  public void subscribeOne(final JedisPubSub jedisPubSub, final String channel,
+      final int timeoutMilliSeconds) {
     client.setTimeout(timeoutMilliSeconds);
     try {
       jedisPubSub.proceed(client, channel);

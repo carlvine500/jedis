@@ -826,9 +826,9 @@ public class ShardedJedis extends BinaryShardedJedis implements JedisCommands, C
     return j.pfcount(key);
   }
 
-@Override
-public void subscribeOne(JedisPubSub jedisPubSub, String channel, int timeout) {
-	// TODO Auto-generated method stub
-}
+  @Override
+  public void subscribeOne(JedisPubSub jedisPubSub, String channel, int timeout) {
+    // TODO Auto-generated method stub
+  }
 
 }

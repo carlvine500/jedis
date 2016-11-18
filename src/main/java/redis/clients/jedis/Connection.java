@@ -72,18 +72,18 @@ public class Connection implements Closeable {
       throw new JedisConnectionException(ex);
     }
   }
-  
+
   public void setTimeout(int timeout) {
-	    try {
-	      if (!isConnected()) {
-	        connect();
-	      }
-	      socket.setSoTimeout(timeout);
-	    } catch (SocketException ex) {
-	      broken = true;
-	      throw new JedisConnectionException(ex);
-	    }
-	  }
+    try {
+      if (!isConnected()) {
+        connect();
+      }
+      socket.setSoTimeout(timeout);
+    } catch (SocketException ex) {
+      broken = true;
+      throw new JedisConnectionException(ex);
+    }
+  }
 
   public void rollbackTimeout() {
     try {
