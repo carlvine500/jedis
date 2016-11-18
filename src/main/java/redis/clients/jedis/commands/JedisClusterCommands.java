@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import redis.clients.jedis.BinaryClient;
+import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.SortingParams;
 import redis.clients.jedis.Tuple;
@@ -258,4 +259,8 @@ public interface JedisClusterCommands {
   List<Object> multiExec(String key, MultiExecutor<String> executor);
 
   Double hincrByFloat(String key, String field, double value);
+
+  Long publishOne(String channel, String message);
+
+  void subscribeOne(JedisPubSub jedisPubSub, String channel, int timeoutMilliSeconds);
 }

@@ -266,4 +266,6 @@ public interface JedisCommands {
 
   long pfcount(final String key);
 
+  void subscribeOne(JedisPubSub jedisPubSub, String channel, int timeout);
+
 }
