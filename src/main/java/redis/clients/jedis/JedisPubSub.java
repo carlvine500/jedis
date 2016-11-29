@@ -157,4 +157,8 @@ public abstract class JedisPubSub {
   public int getSubscribedChannels() {
     return subscribedChannels;
   }
+
+  public void close() {
+    client.close();
+  }
 }
