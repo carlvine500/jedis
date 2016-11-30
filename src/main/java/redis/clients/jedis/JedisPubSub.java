@@ -159,6 +159,9 @@ public abstract class JedisPubSub {
   }
 
   public void close() {
+    if (client == null) {
+      return;
+    }
     client.close();
   }
 }
